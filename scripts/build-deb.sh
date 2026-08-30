@@ -17,6 +17,7 @@ SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$(git log -1 --format=%ct 2>/dev/null ||
 export SOURCE_DATE_EPOCH
 PKG_NAME="linuxcare_${VERSION}_${ARCH}"
 BUILD_DIR="${ROOT_DIR}/target/deb/${PKG_NAME}"
+CHANGELOG_DATE="$(date -u -d "@${SOURCE_DATE_EPOCH}" -R)"
 
 echo "Building release binaries..."
 cargo build --release --workspace
@@ -35,6 +36,8 @@ mkdir -p "${BUILD_DIR}/usr/lib/systemd/system"
 mkdir -p "${BUILD_DIR}/usr/share/icons/hicolor/scalable/apps"
 mkdir -p "${BUILD_DIR}/usr/share/pixmaps"
 mkdir -p "${BUILD_DIR}/usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net"
+mkdir -p "${BUILD_DIR}/usr/share/doc/linuxcare"
+mkdir -p "${BUILD_DIR}/usr/share/man/man1"
 
 # Parent directories may carry the setgid bit (for example 2775).
 # Debian control/package directories must not inherit those permissions.
@@ -55,25 +58,42 @@ install -Dm644 data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg "${BUIL
 install -Dm644 data/gnome-shell-extension/metadata.json "${BUILD_DIR}/usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net/metadata.json"
 install -Dm644 data/gnome-shell-extension/extension.js "${BUILD_DIR}/usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net/extension.js"
 install -Dm644 data/gnome-shell-extension/stylesheet.css "${BUILD_DIR}/usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net/stylesheet.css"
+install -Dm644 data/debian/copyright "${BUILD_DIR}/usr/share/doc/linuxcare/copyright"
+install -Dm644 data/man/linuxcare.1 "${BUILD_DIR}/usr/share/man/man1/linuxcare.1"
+install -Dm644 data/man/linuxcare-maintenance.1 "${BUILD_DIR}/usr/share/man/man1/linuxcare-maintenance.1"
+gzip -n -9 "${BUILD_DIR}/usr/share/man/man1/linuxcare.1"
+gzip -n -9 "${BUILD_DIR}/usr/share/man/man1/linuxcare-maintenance.1"
 
-cat <<EOF > "${BUILD_DIR}/DEBIAN/control"
+cat <<EOF_CHANGELOG > "${BUILD_DIR}/usr/share/doc/linuxcare/changelog.Debian"
+linuxcare (${VERSION}) unstable; urgency=medium
+
+  * Beta package reliability and Debian policy hardening.
+
+ -- MilMit <info@milmit.net>  ${CHANGELOG_DATE}
+EOF_CHANGELOG
+gzip -n -9 "${BUILD_DIR}/usr/share/doc/linuxcare/changelog.Debian"
+
+cat <<EOF_CONTROL > "${BUILD_DIR}/DEBIAN/control"
 Package: linuxcare
 Version: ${VERSION}
 Section: utils
 Priority: optional
 Architecture: ${ARCH}
-Depends: libgtk-4-1, libadwaita-1-0, dbus, policykit-1 | polkitd, systemd
+Depends: libc6, libgtk-4-1, libadwaita-1-0, dbus, polkitd, systemd
 Recommends: smartmontools, libnotify-bin, iproute2
 Suggests: gnome-shell, bpftool
 Maintainer: MilMit <info@milmit.net>
 Homepage: https://milmit.net
-Description: Safe, professional Linux maintenance and storage-management suite
+Description: Safe Linux maintenance and storage-management suite
  LinuxCare is a native GTK4/Libadwaita application for Ubuntu and GNOME.
- It provides safe cleanup, package diagnostics, battery health, boot/storage intelligence,
- process anomaly diagnostics, Deep Network socket ownership/eBPF readiness, GNOME integration, authenticated SMART/NVMe health, hardware inventory, and security auditing using strict privilege separation and security controls.
-EOF
+ It provides safe cleanup, package diagnostics, battery health, boot and
+ storage intelligence, process anomaly diagnostics, Deep Network socket
+ ownership and eBPF readiness, GNOME integration, authenticated read-only
+ SMART/NVMe health, hardware inventory, and security auditing with strict
+ privilege separation.
+EOF_CONTROL
 
-cat <<'EOF' > "${BUILD_DIR}/DEBIAN/postinst"
+cat <<'EOF_POSTINST' > "${BUILD_DIR}/DEBIAN/postinst"
 #!/bin/sh
 set -e
 if [ "$1" = "configure" ]; then
@@ -85,22 +105,22 @@ if [ "$1" = "configure" ]; then
     fi
 fi
 exit 0
-EOF
+EOF_POSTINST
 chmod 755 "${BUILD_DIR}/DEBIAN/postinst"
 
-cat <<'EOF' > "${BUILD_DIR}/DEBIAN/prerm"
+cat <<'EOF_PRERM' > "${BUILD_DIR}/DEBIAN/prerm"
 #!/bin/sh
 set -e
 if [ "$1" = "remove" ] || [ "$1" = "deconfigure" ]; then
-    if command -v systemctl >/dev/null 2>&1; then
-        systemctl stop linuxcare-helper.service 2>/dev/null || true
+    if command -v deb-systemd-invoke >/dev/null 2>&1; then
+        deb-systemd-invoke stop linuxcare-helper.service >/dev/null 2>&1 || true
     fi
 fi
 exit 0
-EOF
+EOF_PRERM
 chmod 755 "${BUILD_DIR}/DEBIAN/prerm"
 
-cat <<'EOF' > "${BUILD_DIR}/DEBIAN/postrm"
+cat <<'EOF_POSTRM' > "${BUILD_DIR}/DEBIAN/postrm"
 #!/bin/sh
 set -e
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
@@ -112,7 +132,7 @@ if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
     fi
 fi
 exit 0
-EOF
+EOF_POSTRM
 chmod 755 "${BUILD_DIR}/DEBIAN/postrm"
 
 echo "Generating deterministic package metadata..."

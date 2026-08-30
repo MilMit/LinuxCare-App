@@ -1,0 +1,25 @@
+.TH LINUXCARE-MAINTENANCE 1 "August 2026" "LinuxCare 0.7.0" "User Commands"
+.SH NAME
+linuxcare-maintenance \- internal scheduled-maintenance runner for LinuxCare
+.SH SYNOPSIS
+.B linuxcare-maintenance
+.B \-\-scheduled
+.SH DESCRIPTION
+.B linuxcare-maintenance
+runs LinuxCare's unprivileged scheduled maintenance workflow. It is intended to
+be launched by LinuxCare-managed user-level systemd timers rather than invoked
+interactively.
+.PP
+Scheduled maintenance does not silently perform privileged APT, Snap, Flatpak,
+journal, firewall, SMART mutation, or package-removal operations.
+.SH OPTIONS
+.TP
+.B \-\-scheduled
+Run the configured scheduled-maintenance workflow.
+.SH EXIT STATUS
+Returns zero on success and non-zero when configuration or maintenance execution
+fails.
+.SH SEE ALSO
+.BR linuxcare (1)
+.SH AUTHOR
+MilMit <info@milmit.net>

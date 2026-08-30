@@ -18,8 +18,21 @@ PY
 
 pkg="$(dpkg-deb -f "$DEB" Package)"
 ver="$(dpkg-deb -f "$DEB" Version)"
+depends="$(dpkg-deb -f "$DEB" Depends)"
 [[ "$pkg" == "linuxcare" ]] || { echo "Unexpected package name: $pkg" >&2; exit 1; }
 [[ "$ver" == "$VERSION" ]] || { echo "Package version mismatch: $ver != $VERSION" >&2; exit 1; }
+grep -Eq '(^|, )[[:space:]]*libc6([[:space:](,]|$)' <<<"$depends" || {
+  echo "Package must declare a direct libc6 dependency" >&2
+  exit 1
+}
+grep -Eq '(^|, )[[:space:]]*polkitd([[:space:](,]|$)' <<<"$depends" || {
+  echo "Package must depend on polkitd" >&2
+  exit 1
+}
+if grep -Eq '(^|, )[[:space:]]*policykit-1([[:space:](,]|$)' <<<"$depends"; then
+  echo "Package must not depend on obsolete policykit-1" >&2
+  exit 1
+fi
 
 listing="$(dpkg-deb -c "$DEB")"
 for required in \
@@ -35,7 +48,11 @@ for required in \
   './usr/share/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg' \
   './usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net/metadata.json' \
   './usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net/extension.js' \
-  './usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net/stylesheet.css'; do
+  './usr/share/gnome-shell/extensions/linuxcare-vitals@milmit.net/stylesheet.css' \
+  './usr/share/doc/linuxcare/changelog.Debian.gz' \
+  './usr/share/doc/linuxcare/copyright' \
+  './usr/share/man/man1/linuxcare.1.gz' \
+  './usr/share/man/man1/linuxcare-maintenance.1.gz'; do
   grep -Fq "$required" <<<"$listing" || { echo "Package missing: $required" >&2; exit 1; }
 done
 

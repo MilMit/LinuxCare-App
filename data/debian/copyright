@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: LinuxCare
+Source: https://github.com/MilMit/LinuxCare
+
+Files: *
+Copyright: 2026 MilMit
+License: Proprietary
+ This software is distributed under a proprietary license.
+ Redistribution, modification, relicensing, or commercial reuse is not
+ granted unless separately authorized in writing by MilMit.

@@ -1,0 +1,28 @@
+.TH LINUXCARE 1 "August 2026" "LinuxCare 0.7.0" "User Commands"
+.SH NAME
+linuxcare \- safety-first Linux maintenance and diagnostics application
+.SH SYNOPSIS
+.B linuxcare
+.RI [ OPTION ]
+.SH DESCRIPTION
+.B LinuxCare
+is a native GTK4 and Libadwaita application for Ubuntu and GNOME. It provides
+system health information, diagnostics, storage analysis, guarded maintenance,
+and integrations that keep privileged operations behind a narrow D-Bus helper
+protected by Polkit.
+.SH OPTIONS
+.TP
+.BR \-h , " \-\-help"
+Show command-line help and exit.
+.TP
+.BR \-V , " \-\-version"
+Show the LinuxCare version and exit.
+.SH FILES
+.TP
+.I /usr/libexec/linuxcare-helper
+Privileged D-Bus helper. It is activated on demand and is not intended to run
+as a permanent background service.
+.SH SEE ALSO
+.BR linuxcare-maintenance (1)
+.SH AUTHOR
+MilMit <info@milmit.net>

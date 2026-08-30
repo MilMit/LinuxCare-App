@@ -1,5 +1,6 @@
 [Unit]
 Description=LinuxCare privileged maintenance helper
+Documentation=https://github.com/MilMit/LinuxCare/blob/main/SECURITY.md
 
 [Service]
 Type=dbus
