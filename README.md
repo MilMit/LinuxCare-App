@@ -17,6 +17,14 @@
   <img alt="Status: Public Beta" src="https://img.shields.io/badge/status-public%20beta-blue">
 </p>
 
+<p align="center">
+  <a href="https://github.com/MilMit/LinuxCare/releases/download/v0.7.0-beta.1/linuxcare_0.7.0-beta.1_amd64.deb"><strong>⬇ Download .deb</strong></a>
+  &nbsp;•&nbsp;
+  <a href="https://github.com/MilMit/LinuxCare/releases/tag/v0.7.0-beta.1"><strong>All release assets</strong></a>
+  &nbsp;•&nbsp;
+  <a href="RELEASE_NOTES.md"><strong>Release notes</strong></a>
+</p>
+
 ## Public Beta
 
 **LinuxCare 0.7.0-beta.1** is the first public Beta of LinuxCare. The feature set is frozen for this release line while testing focuses on package reliability, upgrade safety, privilege separation, compatibility, and real-world bug fixing.
