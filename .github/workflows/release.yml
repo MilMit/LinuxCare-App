@@ -1,0 +1,90 @@
+name: LinuxCare Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Verify, build & publish release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libgtk-4-dev libadwaita-1-dev libgraphene-1.0-dev \
+            dpkg-dev desktop-file-utils appstream lintian shellcheck nodejs xvfb dbus-x11
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.93.0
+          components: clippy, rustfmt
+
+      - name: Verify tag and release metadata
+        run: ./scripts/check-release.sh "${GITHUB_REF_NAME}"
+
+      - name: Full verification gate
+        run: ./scripts/verify.sh
+
+      - name: GUI startup smoke (1024x600)
+        run: ./scripts/smoke-gui.sh
+
+      - name: Build Debian package
+        run: ./scripts/build-deb.sh
+
+      - name: Validate Debian package
+        run: ./scripts/validate-package.sh
+
+      - name: Staged install / upgrade / uninstall lifecycle
+        run: ./scripts/test-install-lifecycle.sh
+
+      - name: Real Debian upgrade / install / remove smoke
+        run: sudo ./scripts/smoke-deb-install.sh
+
+      - name: Prepare release artifact pack
+        run: ./scripts/package-release-assets.sh
+
+      - name: Attest release provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            target/release-pack/*.deb
+            target/release-pack/*-linux-gnu.tar.gz
+            target/release-pack/*-source.tar.gz
+
+      - name: Attest release SBOM
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            target/release-pack/*.deb
+            target/release-pack/*-linux-gnu.tar.gz
+            target/release-pack/*-source.tar.gz
+          sbom-path: target/release-pack/SBOM.spdx.json
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: LinuxCare ${{ github.ref_name }}
+          body_path: RELEASE_NOTES.md
+          files: |
+            target/release-pack/*
+          fail_on_unmatched_files: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-rc') }}
+          make_latest: false

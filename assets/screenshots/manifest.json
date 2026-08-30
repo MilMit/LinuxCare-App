@@ -1,0 +1,21 @@
+{
+  "version": "0.7.0-beta.1",
+  "required": [
+    {
+      "file": "01-dashboard.png",
+      "purpose": "Dashboard, health score and recommended actions"
+    },
+    {
+      "file": "02-safety-cleaner.png",
+      "purpose": "Safety Quarantine / cleanup semantics"
+    },
+    {
+      "file": "03-doctors.png",
+      "purpose": "Representative system diagnostics view"
+    }
+  ],
+  "format": "PNG",
+  "aspect_ratio": "16:9",
+  "minimum_width": 1280,
+  "privacy_review_required": true
+}

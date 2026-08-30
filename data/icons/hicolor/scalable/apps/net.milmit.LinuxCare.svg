@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c3d72"/>
+      <stop offset="50%" stop-color="#224b8f"/>
+      <stop offset="100%" stop-color="#1b1d36"/>
+    </linearGradient>
+
+    <!-- Shield Gradient -->
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3584e4"/>
+      <stop offset="60%" stop-color="#7856ff"/>
+      <stop offset="100%" stop-color="#9141ac"/>
+    </linearGradient>
+
+    <!-- Emerald Arc Gradient -->
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#57e389"/>
+      <stop offset="100%" stop-color="#2ec27e"/>
+    </linearGradient>
+
+    <!-- Pulse Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle App Base with Shadow -->
+  <rect x="8" y="8" width="112" height="112" rx="28" ry="28" fill="url(#bgGrad)" filter="url(#dropShadow)"/>
+  
+  <!-- Subtle Top Highlight Rim -->
+  <rect x="8.5" y="8.5" width="111" height="111" rx="27.5" ry="27.5" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5"/>
+
+  <!-- Ambient Dial Ring Background -->
+  <circle cx="64" cy="64" r="42" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Glowing Outer Cleaning Progress Arc -->
+  <path d="M 64 22 A 42 42 0 1 1 27.8 85.2" fill="none" stroke="url(#shieldGrad)" stroke-width="8" stroke-linecap="round" filter="url(#glow)"/>
+
+  <!-- Orbit Spark -->
+  <circle cx="64" cy="22" r="4.5" fill="#ffffff" filter="url(#glow)"/>
+
+  <!-- Central Shield of Protection & System Care -->
+  <path d="M 64 36 C 76 36 86 42 86 42 C 86 64 76 80 64 88 C 52 80 42 64 42 42 C 42 42 52 36 64 36 Z" 
+        fill="url(#bgGrad)" stroke="rgba(255,255,255,0.15)" stroke-width="2"/>
+
+  <!-- Emerald Health Heartbeat / Checkmark Spark inside Shield -->
+  <path d="M 52 63 L 60 71 L 76 52" fill="none" stroke="url(#emeraldGrad)" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+</svg>

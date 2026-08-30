@@ -1,0 +1,14 @@
+{
+  "name": "LinuxCare Vitals",
+  "description": "Compact CPU, temperature, RAM, network, and battery indicators for LinuxCare on GNOME Shell.",
+  "uuid": "linuxcare-vitals@milmit.net",
+  "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
+    "50"
+  ],
+  "url": "https://milmit.net"
+}

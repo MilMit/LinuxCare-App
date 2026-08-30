@@ -1,0 +1,403 @@
+/* LinuxCare Modern Libadwaita Glassmorphic Design System */
+
+.app-body {
+  background: @window_bg_color;
+}
+
+.sidebar {
+  border-right: 1px solid alpha(@borders, 0.4);
+  background: alpha(@headerbar_bg_color, 0.85);
+}
+
+.navigation-sidebar {
+  background: transparent;
+  padding: 8px 6px;
+}
+
+.navigation-sidebar row {
+  border-radius: 12px;
+  margin: 2px 6px;
+  padding: 4px 6px;
+  transition: all 180ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.navigation-sidebar row:hover {
+  background: alpha(@theme_fg_color, 0.06);
+  transform: translateX(2px);
+}
+
+.navigation-sidebar row:selected {
+  background: alpha(@accent_bg_color, 0.20);
+  color: @accent_color;
+  font-weight: 700;
+  box-shadow: inset 3px 0 0 @accent_color;
+}
+
+/* Cards & Elevated Containers */
+.hero-card, .metric-card, .finding-card, .preview-card, .warning-card {
+  border-radius: 18px;
+  border: 1px solid alpha(@borders, 0.6);
+  background: alpha(@card_bg_color, 0.95);
+  box-shadow: 0 3px 12px alpha(black, 0.04);
+  transition: all 200ms cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.finding-card:hover, .metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px alpha(black, 0.08);
+  border-color: alpha(@accent_color, 0.45);
+}
+
+.hero-card {
+  padding: 26px;
+  background: linear-gradient(135deg, alpha(@card_bg_color, 0.98) 0%, alpha(@accent_bg_color, 0.08) 100%);
+  border-color: alpha(@accent_color, 0.3);
+  box-shadow: 0 6px 20px alpha(black, 0.06);
+}
+
+.metric-card {
+  padding: 18px;
+}
+
+.metric-card.risk-safe {
+  border-top: 3px solid #26a269;
+}
+
+.metric-card.risk-review {
+  border-top: 3px solid #e5a50a;
+}
+
+.metric-card.risk-advanced {
+  border-top: 3px solid #9141ac;
+}
+
+.finding-card {
+  padding: 14px 18px;
+}
+
+.preview-card {
+  padding: 22px;
+  border: 1px solid alpha(@accent_color, 0.5);
+  background: alpha(@accent_bg_color, 0.08);
+}
+
+.warning-card {
+  padding: 16px;
+  border-color: alpha(#e5a50a, 0.45);
+  background: alpha(#e5a50a, 0.10);
+}
+
+.hero-number {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -1.4px;
+  color: @theme_fg_color;
+}
+
+.caption-heading {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  opacity: 0.85;
+}
+
+.risk-badge {
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  transition: transform 150ms ease;
+}
+
+.risk-badge:hover {
+  transform: scale(1.05);
+}
+
+.risk-badge.risk-safe {
+  background: alpha(#2ec27e, 0.18);
+  color: #26a269;
+}
+
+.risk-badge.risk-review {
+  background: alpha(#e5a50a, 0.18);
+  color: #c67808;
+}
+
+.risk-badge.risk-advanced {
+  background: alpha(#9141ac, 0.18);
+  color: #813d9c;
+}
+
+.risk-badge.risk-dangerous {
+  background: alpha(#e01b24, 0.18);
+  color: #c01c28;
+}
+
+.scanner-container {
+  padding: 6px;
+}
+
+.status-badge-active {
+  color: #26a269;
+  font-weight: bold;
+}
+
+.status-badge-inactive {
+  color: #e5a50a;
+}
+
+.profile-pill {
+  transition: all 180ms ease;
+}
+
+.profile-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px alpha(black, 0.14);
+}
+
+.vitals-header-pill {
+  border-radius: 9999px;
+  padding: 4px 14px;
+  margin: 3px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid alpha(@card_fg_color, 0.18);
+  background: alpha(@card_fg_color, 0.08);
+  transition: all 150ms ease;
+}
+
+.vitals-header-pill:hover {
+  background: alpha(@accent_color, 0.22);
+  border-color: alpha(@accent_color, 0.5);
+  transform: translateY(-1px);
+}
+
+.donut-card {
+  padding: 22px;
+}
+
+/* Micro animations & controls */
+button.pill {
+  transition: all 150ms ease;
+}
+
+button.pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px alpha(black, 0.1);
+}
+
+button.suggested-action:hover {
+  box-shadow: 0 4px 14px alpha(@accent_color, 0.35);
+}
+
+button.destructive-action:hover {
+  box-shadow: 0 4px 14px alpha(#e01b24, 0.35);
+}
+
+/* Health Intelligence */
+.health-card {
+  border-radius: 18px;
+  border: 1px solid alpha(@accent_color, 0.28);
+  background: linear-gradient(145deg, alpha(@card_bg_color, 0.98) 0%, alpha(@accent_bg_color, 0.06) 100%);
+  box-shadow: 0 5px 18px alpha(black, 0.05);
+  padding: 22px;
+}
+
+.health-score-row {
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: alpha(@card_fg_color, 0.035);
+}
+
+.health-score {
+  min-width: 86px;
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+}
+
+.health-score.health-excellent {
+  color: #26a269;
+}
+
+.health-score.health-good {
+  color: @accent_color;
+}
+
+.health-score.health-attention {
+  color: #c67808;
+}
+
+.health-score.health-critical {
+  color: #c01c28;
+}
+
+.health-score-bar {
+  min-height: 7px;
+}
+
+.health-signal-row {
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: alpha(@card_fg_color, 0.035);
+}
+
+.risk-badge.health-neutral {
+  background: alpha(@card_fg_color, 0.08);
+  color: @theme_fg_color;
+}
+
+.change-row {
+  border-radius: 12px;
+  padding: 10px 12px;
+  border-left: 3px solid alpha(@borders, 0.7);
+  background: alpha(@card_fg_color, 0.03);
+}
+
+.change-row.change-positive {
+  border-left-color: #26a269;
+}
+
+.change-row.change-attention {
+  border-left-color: #e5a50a;
+}
+
+.change-row.change-neutral {
+  border-left-color: @accent_color;
+}
+
+/* Boot Doctor */
+.boot-card {
+  border-radius: 18px;
+  border: 1px solid alpha(@accent_color, 0.28);
+  background: linear-gradient(145deg, alpha(@card_bg_color, 0.98) 0%, alpha(@accent_bg_color, 0.05) 100%);
+  box-shadow: 0 5px 18px alpha(black, 0.05);
+  padding: 22px;
+}
+
+.boot-phase-card {
+  border-radius: 12px;
+  padding: 12px;
+  background: alpha(@card_fg_color, 0.035);
+}
+
+.boot-chain-step {
+  border-radius: 9999px;
+  min-width: 28px;
+  min-height: 28px;
+  background: alpha(@accent_color, 0.14);
+  color: @accent_color;
+  font-weight: 800;
+}
+
+/* Storage Runway */
+.runway-card {
+  border-radius: 18px;
+  border: 1px solid alpha(@accent_color, 0.28);
+  background: linear-gradient(145deg, alpha(@card_bg_color, 0.98) 0%, alpha(@accent_bg_color, 0.055) 100%);
+  box-shadow: 0 5px 18px alpha(black, 0.05);
+  padding: 22px;
+}
+
+.runway-metric,
+.runway-target {
+  border-radius: 12px;
+  padding: 12px;
+  background: alpha(@card_fg_color, 0.035);
+}
+
+.runway-target {
+  text-align: center;
+}
+
+.runway-progress {
+  min-height: 8px;
+}
+
+/* Package Doctor */
+.package-doctor-card {
+  border-radius: 18px;
+  border: 1px solid alpha(@accent_color, 0.24);
+  background: linear-gradient(145deg, alpha(@card_bg_color, 0.98) 0%, alpha(@accent_bg_color, 0.045) 100%);
+  box-shadow: 0 5px 18px alpha(black, 0.045);
+  padding: 18px;
+}
+
+.package-metric,
+.package-inventory-row {
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: alpha(@card_fg_color, 0.035);
+}
+
+/* Battery Lab */
+.battery-lab-card {
+  border-radius: 18px;
+  border: 1px solid alpha(@accent_color, 0.24);
+  background: linear-gradient(145deg, alpha(@card_bg_color, 0.98) 0%, alpha(@accent_bg_color, 0.05) 100%);
+  box-shadow: 0 5px 18px alpha(black, 0.045);
+  padding: 18px;
+}
+
+.battery-metric,
+.battery-threshold-row {
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: alpha(@card_fg_color, 0.035);
+}
+
+.battery-capacity-progress {
+  min-height: 9px;
+}
+
+
+/* Process Intelligence */
+.process-intelligence-card {
+  border-radius: 18px;
+  border: 1px solid alpha(@accent_color, 0.24);
+  background: linear-gradient(145deg, alpha(@card_bg_color, 0.98) 0%, alpha(@accent_bg_color, 0.045) 100%);
+  box-shadow: 0 5px 18px alpha(black, 0.045);
+  padding: 18px;
+}
+
+.process-vital-metric,
+.process-metric-row,
+.process-anomaly-row {
+  border-radius: 12px;
+  padding: 11px 12px;
+  background: alpha(@card_fg_color, 0.035);
+}
+
+.process-anomaly-row {
+  border-left: 3px solid #e5a50a;
+}
+
+/* 0.5.0-alpha.1 consolidated intelligence, automation, and desktop integration surfaces */
+.health-domain-card {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: alpha(@window_fg_color, 0.045);
+}
+
+.health-domain-card progressbar trough {
+  min-height: 5px;
+}
+
+.health-domain-card progressbar progress {
+  min-height: 5px;
+}
+
+/* 0.7 beta UX cleanup: strong keyboard focus, calmer narrow-window behavior. */
+button:focus-visible,
+row:focus-visible,
+.navigation-sidebar row:focus-visible {
+  box-shadow: 0 0 0 2px alpha(@accent_color, 0.55);
+}
+
+/* Avoid motion-only feedback for keyboard users; selected/focused state remains visible. */
+.navigation-sidebar row:focus-visible,
+.finding-card:focus-visible,
+.metric-card:focus-visible {
+  transform: none;
+}

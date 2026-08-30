@@ -1,0 +1,14 @@
+/home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/target/release-pack/SBOM.spdx.json
+/home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/target/release-pack/RELEASE-MANIFEST.json
+Release assets prepared in target/release-pack
+total 7.8M
+-rw-r--r-- 1 milmit milmit 2.1K Aug 30 20:25 BETA_RELEASE_STATUS.md
+-rw-rw-r-- 1 milmit milmit  243 Aug 30 20:25 BUILD_INFO.txt
+-rw-rw-r-- 1 milmit milmit 2.2K Aug 30 21:55 RELEASE-MANIFEST.json
+-rw-r--r-- 1 milmit milmit 4.4K Aug 30 20:25 RELEASE_NOTES.md
+-rw-rw-r-- 1 milmit milmit 120K Aug 30 20:25 SBOM.spdx.json
+-rw------- 1 milmit milmit  821 Aug 30 21:55 SHA256SUMS.txt
+-rw-r--r-- 1 milmit milmit 1.5K Aug 30 20:25 VERIFY_RELEASE.md
+-rw-rw-r-- 1 milmit milmit 282K Aug 30 20:25 linuxcare-0.7.0-beta.1-source.tar.gz
+-rw-rw-r-- 1 milmit milmit 4.8M Aug 30 20:25 linuxcare-0.7.0-beta.1-x86_64-linux-gnu.tar.gz
+-rw-r--r-- 1 milmit milmit 2.6M Aug 30 20:25 linuxcare_0.7.0-beta.1_amd64.deb

@@ -1,0 +1,35 @@
+app-id: net.milmit.LinuxCare
+runtime: org.gnome.Platform
+runtime-version: '46'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.rust-stable
+command: linuxcare
+
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --filesystem=host:ro
+  - --filesystem=home
+  - --talk-name=org.freedesktop.Notifications
+  - --system-talk-name=net.hadess.PowerProfiles
+
+build-options:
+  append-path: /usr/lib/sdk/rust-stable/bin
+  env:
+    CARGO_HOME: /run/build/linuxcare/cargo
+
+modules:
+  - name: linuxcare
+    buildsystem: simple
+    build-commands:
+      - cargo --offline fetch --manifest-path Cargo.toml
+      - cargo --offline build --release --verbose
+      - install -Dm755 target/release/linuxcare /app/bin/linuxcare
+      - install -Dm644 data/net.milmit.LinuxCare.desktop /app/share/applications/net.milmit.LinuxCare.desktop
+      - install -Dm644 data/net.milmit.LinuxCare.metainfo.xml /app/share/metainfo/net.milmit.LinuxCare.metainfo.xml
+    sources:
+      - type: dir
+        path: .

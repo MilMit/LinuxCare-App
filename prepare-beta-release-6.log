@@ -1,0 +1,110 @@
+== LinuxCare Beta Gate: source / security / native ==
+== LinuxCare static/security verification ==
+XML metadata/policies parse successfully
+LinuxCare security regression suite passed.
+ShellCheck passed
+Desktop entry validation passed
+
+✔ Validation was successful: pedantic: 1
+AppStream metadata validation passed
+release metadata is internally consistent for 0.7.0-beta.1
+GNOME extension metadata parses successfully
+GNOME extension JavaScript syntax check passed
+version metadata consistent: 0.7.0-beta.1
+== LinuxCare native build preflight ==
+rustc 1.93.0 (254b59607 2026-01-19)
+cargo 1.93.0 (083ac5135 2025-12-15)
+4.22.4
+1.9.1
+NOTE: smartmontools is not installed; Hardware Doctor inventory will work, but SMART/NVMe health requires it
+Optional desktop notification backend detected: notify-send
+Deep Network socket backend detected: ss
+Optional eBPF capability tool detected: bpftool
+GNOME extension management CLI detected: gnome-extensions
+== Rust format / lint / test / build ==
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (target/debug/deps/linuxcare-4fa9a518360d1952)
+
+running 43 tests
+test automation_engine::beta_migration_tests::older_partial_automation_config_uses_defaults ... ok
+test battery::tests::converts_charge_to_energy ... ok
+test battery::tests::discharge_time_uses_energy_and_power ... ok
+test boot::tests::blame_parser_orders_slowest_first ... ok
+test battery::tests::health_ratio_is_bounded ... ok
+test boot::tests::duration_parser_handles_common_systemd_units ... ok
+test container_analyzer::tests::parses_docker_json_lines ... ok
+test cleanup_policy::migration_tests::older_partial_policy_uses_safe_defaults ... ok
+test cleanup::tests::refuses_symlinked_allowlist_root ... ok
+test container_analyzer::tests::parses_human_sizes ... ok
+test container_analyzer::tests::parses_podman_json ... ok
+test cleanup::tests::cleans_exact_allowlisted_directory_contents ... ok
+test deep_network::tests::parses_tcp_ss_line_with_process ... ok
+test deep_network::tests::does_not_invent_process_for_hidden_owner ... ok
+test filesystem_doctor::tests::parses_mountinfo ... ok
+test filesystem_doctor::tests::unescapes_spaces ... ok
+test gnome_integration::tests::extension_uuid_is_stable ... ok
+test health::tests::healthy_snapshot_scores_high ... ok
+test hardware::tests::separates_smartctl_command_errors_from_health_status_bits ... ok
+test hardware::tests::parses_ata_failure_counters ... ok
+test health::tests::kernel_change_is_reported ... ok
+test health::tests::pressure_reduces_score ... ok
+test hardware::tests::parses_nvme_smart_json_without_serial_data ... ok
+test network_doctor::tests::parses_default_route ... ok
+test network_doctor::tests::parses_nmcli_device ... ok
+test network_doctor::tests::parses_ping_time ... ok
+test package_doctor::tests::parses_apt_simulation_lines ... ok
+test process_intelligence::tests::baseline_requires_time_and_samples ... ok
+test package_doctor::tests::counts_only_enabled_deb822_stanzas ... ok
+test process_intelligence::tests::detects_large_memory_growth ... ok
+test process_intelligence::tests::detects_process_cpu_spike_after_baseline ... ok
+test scan::scanners::flatpak::tests::parses_common_sizes ... ok
+test history::tests::appends_newest_first ... ok
+test service_doctor::tests::preview_limits_output ... ok
+test settings::tests::deserializes_defaults_for_missing_fields ... ok
+test settings::tests::serializes_and_deserializes_full_settings ... ok
+test storage_intelligence::tests::daily_rate_requires_real_time_separation ... ok
+test storage_runway::tests::forecast_refuses_flat_growth ... ok
+test storage_runway::tests::regression_detects_growth_per_day ... ok
+test thermal_doctor::tests::classifies_high_temperature ... ok
+test storage_intelligence::tests::confidence_starts_in_learning_mode ... ok
+test quarantine::tests::quarantine_then_restore_round_trip ... ok
+test quarantine::tests::restore_refuses_non_empty_recreated_target ... ok
+
+test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/linuxcare-2d66ae2754a61795)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/linuxcare-helper.rs (target/debug/deps/linuxcare_helper-059aa1d80e1fcc34)
+
+running 3 tests
+test tests::accepts_normal_snap_identifiers ... ok
+test tests::validates_only_sysfs_block_device_basenames ... ok
+test tests::rejects_argument_shaped_snap_identifiers ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/linuxcare-maintenance.rs (target/debug/deps/linuxcare_maintenance-08fd767599dabf82)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s
+LinuxCare verification completed successfully.
+== LinuxCare Beta Gate: GUI startup ==
+GUI smoke: starting isolated 1024x600 X11 session...
+LinuxCare GUI startup smoke passed at a 1024x600 virtual display.
+== LinuxCare Beta Gate: Debian package ==
+Building release binaries...
+    Finished `release` profile [optimized] target(s) in 0.08s
+Preparing package structure at /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/target/deb/linuxcare_0.7.0-beta.1_amd64...
+Copying binaries and system data files...
+Generating deterministic package metadata...
+Building Debian package...
+dpkg-deb: error: control directory has bad permissions 2755 (must be >=0755 and <=0775)

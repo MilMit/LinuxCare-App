@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<component type="desktop-application">
+  <id>net.milmit.LinuxCare</id>
+  <name>LinuxCare</name>
+  <summary>Safety-first Linux system maintenance</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>LicenseRef-proprietary</project_license>
+  <developer id="net.milmit">
+    <name>MilMit</name>
+  </developer>
+  <url type="homepage">https://milmit.net</url>
+  <description>
+    <p>LinuxCare analyzes system health, hardware inventory, authenticated SMART/NVMe storage health, network paths and live socket ownership, container storage, package consistency, battery wear, boot performance and reclaimable storage, explains risk before cleanup, protects eligible user-space cleanup with Safety Quarantine, and tracks maintenance activity over time.</p>
+    <p>Created and engineered by MilMit with a safety-first unprivileged GUI, local-only health snapshots, user-level systemd automation, GNOME Shell integration, and typed Polkit/D-Bus privilege separation.</p>
+  </description>
+  <content_rating type="oars-1.1" />
+  <launchable type="desktop-id">net.milmit.LinuxCare.desktop</launchable>
+  <provides>
+    <binary>linuxcare</binary>
+  </provides>
+  <categories>
+    <category>System</category>
+    <category>Utility</category>
+  </categories>
+  <releases>
+    <release version="0.7.0-beta.1" date="2026-08-30" />
+    <release version="0.6.0-alpha.1" date="2026-08-30" />
+    <release version="0.5.0-alpha.1" date="2026-08-30" />
+    <release version="0.4.0-alpha.1" date="2026-08-30" />
+    <release version="0.3.0-alpha.1" date="2026-08-30" />
+    <release version="0.2.0-alpha.9" date="2026-08-30" />
+    <release version="0.2.0-alpha.8" date="2026-08-30" />
+    <release version="0.2.0-alpha.7" date="2026-08-30" />
+    <release version="0.2.0-alpha.5" date="2026-08-30" />
+    <release version="0.2.0-alpha.4" date="2026-08-30" />
+    <release version="0.2.0-alpha.2" date="2026-08-30" />
+  </releases>
+</component>

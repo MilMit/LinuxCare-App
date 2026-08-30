@@ -1,0 +1,2961 @@
+== LinuxCare Beta Gate: source / security / native ==
+== LinuxCare static/security verification ==
+XML metadata/policies parse successfully
+LinuxCare security regression suite passed.
+ShellCheck passed
+Desktop entry validation passed
+
+✔ Validation was successful: pedantic: 1
+AppStream metadata validation passed
+release metadata is internally consistent for 0.7.0-beta.1
+GNOME extension metadata parses successfully
+GNOME extension JavaScript syntax check passed
+version metadata consistent: 0.7.0-beta.1
+== LinuxCare native build preflight ==
+rustc 1.93.0 (254b59607 2026-01-19)
+cargo 1.93.0 (083ac5135 2025-12-15)
+4.22.4
+1.9.1
+NOTE: smartmontools is not installed; Hardware Doctor inventory will work, but SMART/NVMe health requires it
+Optional desktop notification backend detected: notify-send
+Deep Network socket backend detected: ss
+Optional eBPF capability tool detected: bpftool
+GNOME extension management CLI detected: gnome-extensions
+== Rust format / lint / test / build ==
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/bin/linuxcare-helper.rs:144:
+ 
+         let device_path = format!("/dev/{device}");
+         let output = Command::new("/usr/bin/timeout")
+[31m-            .args(["8s", smartctl, "-a", "-n", "standby,0", "-j", device_path.as_str()])
+(B[m[32m+            .args([
+(B[m[32m+                "8s",
+(B[m[32m+                smartctl,
+(B[m[32m+                "-a",
+(B[m[32m+                "-n",
+(B[m[32m+                "standby,0",
+(B[m[32m+                "-j",
+(B[m[32m+                device_path.as_str(),
+(B[m[32m+            ])
+(B[m             .env_clear()
+             .env("LC_ALL", "C")
+             .stdin(Stdio::null())
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/bin/linuxcare-helper.rs:453:
+         assert!(validate_block_device_name("/dev/sda").is_err());
+         assert!(validate_block_device_name("--help").is_err());
+     }
+[31m-
+(B[m }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/bin/linuxcare-maintenance.rs:3:
+ fn main() {
+     let scheduled = std::env::args().any(|arg| arg == "--scheduled");
+     if !scheduled {
+[31m-        eprintln!("linuxcare-maintenance is an internal scheduled-maintenance runner; use --scheduled");
+(B[m[32m+        eprintln!(
+(B[m[32m+            "linuxcare-maintenance is an internal scheduled-maintenance runner; use --scheduled"
+(B[m[32m+        );
+(B[m         std::process::exit(2);
+     }
+     let Some(home) = std::env::var_os("HOME").map(PathBuf::from) else {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1:
+ use crate::{
+     executor::{self, CleanupEvent},
+[31m-    format, history, quarantine, timeline,
+(B[m[32m+    format, history,
+(B[m     model::{CleanupCandidate, CleanupRisk},
+[32m+    quarantine,
+(B[m     scan::{self, ScanEvent, ScanHandle},
+[31m-    settings,
+(B[m[32m+    settings, timeline,
+(B[m };
+ use adw::prelude::*;
+ use gtk::{cairo, glib};
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:169:
+         Some("settings"),
+     );
+ 
+[31m-    let header_vitals = crate::modules::vitals::header_vitals_widget(
+(B[m[31m-        stack.clone(),
+(B[m[31m-        sidebar.clone(),
+(B[m[31m-    );
+(B[m[32m+    let header_vitals =
+(B[m[32m+        crate::modules::vitals::header_vitals_widget(stack.clone(), sidebar.clone());
+(B[m     header_vitals.set_visible(!flap.is_folded());
+     let header_vitals_fold = header_vitals.clone();
+     flap.connect_folded_notify(move |f| {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:369:
+                 .as_ref()
+                 .map(|path| path.display().to_string())
+                 .unwrap_or_else(|| "not installed".to_string());
+[31m-            detail.set_text(&format!("{}\n{shell} • Extension path: {location}", state.detail));
+(B[m[32m+            detail.set_text(&format!(
+(B[m[32m+                "{}\n{shell} • Extension path: {location}",
+(B[m[32m+                state.detail
+(B[m[32m+            ));
+(B[m 
+             for class in ["risk-safe", "risk-review", "health-neutral"] {
+                 badge.remove_css_class(class);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:407:
+     {
+         let do_refresh = do_refresh.clone();
+         let detail = detail.clone();
+[31m-        disable.connect_clicked(move |_| match crate::gnome_integration::set_enabled(false) {
+(B[m[31m-            Ok(()) => do_refresh(),
+(B[m[31m-            Err(err) => detail.set_text(&format!("Could not disable extension: {err}")),
+(B[m[31m-        });
+(B[m[32m+        disable.connect_clicked(
+(B[m[32m+            move |_| match crate::gnome_integration::set_enabled(false) {
+(B[m[32m+                Ok(()) => do_refresh(),
+(B[m[32m+                Err(err) => detail.set_text(&format!("Could not disable extension: {err}")),
+(B[m[32m+            },
+(B[m[32m+        );
+(B[m     }
+     do_refresh();
+     card.upcast()
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:559:
+     let interval_label = gtk::Label::new(Some("Refresh interval"));
+     interval_label.set_xalign(0.0);
+     interval_label.set_hexpand(true);
+[31m-    let interval_picker = gtk::DropDown::from_strings(&["1 second", "2 seconds", "5 seconds", "10 seconds"]);
+(B[m[32m+    let interval_picker =
+(B[m[32m+        gtk::DropDown::from_strings(&["1 second", "2 seconds", "5 seconds", "10 seconds"]);
+(B[m     interval_picker.set_selected(match cur_settings.top_bar.interval_sec {
+         1 => 0,
+         5 => 2,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:873:
+             let (r, g, b) = colors[i % colors.len()];
+ 
+             let is_hovered = hovered == Some(i);
+[31m-            let outer_r = if is_hovered { base_outer_r + 6.0 } else { base_outer_r };
+(B[m[31m-            let inner_r = if is_hovered { base_inner_r - 2.0 } else { base_inner_r };
+(B[m[32m+            let outer_r = if is_hovered {
+(B[m[32m+                base_outer_r + 6.0
+(B[m[32m+            } else {
+(B[m[32m+                base_outer_r
+(B[m[32m+            };
+(B[m[32m+            let inner_r = if is_hovered {
+(B[m[32m+                base_inner_r - 2.0
+(B[m[32m+            } else {
+(B[m[32m+                base_inner_r
+(B[m[32m+            };
+(B[m             let line_w = outer_r - inner_r;
+             let mid_r = (outer_r + inner_r) / 2.0;
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:881:
+             cr.set_line_width(line_w);
+             cr.set_line_cap(cairo::LineCap::Butt);
+             if is_hovered {
+[31m-                cr.set_source_rgb((r * 1.15).min(1.0), (g * 1.15).min(1.0), (b * 1.15).min(1.0));
+(B[m[32m+                cr.set_source_rgb(
+(B[m[32m+                    (r * 1.15).min(1.0),
+(B[m[32m+                    (g * 1.15).min(1.0),
+(B[m[32m+                    (b * 1.15).min(1.0),
+(B[m[32m+                );
+(B[m             } else {
+                 cr.set_source_rgb(r, g, b);
+             }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:959:
+     card.upcast()
+ }
+ 
+[31m-
+(B[m fn boot_doctor_page() -> gtk::Widget {
+     let outer = gtk::ScrolledWindow::new();
+     let page = gtk::Box::new(gtk::Orientation::Vertical, 18);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1028:
+     recommendation_card.add_css_class("finding-card");
+     let recommendation_icon = gtk::Image::from_icon_name("dialog-information-symbolic");
+     recommendation_icon.set_pixel_size(24);
+[31m-    let recommendation_label = gtk::Label::new(Some("LinuxCare will recommend review targets after analysis."));
+(B[m[32m+    let recommendation_label = gtk::Label::new(Some(
+(B[m[32m+        "LinuxCare will recommend review targets after analysis.",
+(B[m[32m+    ));
+(B[m     recommendation_label.set_xalign(0.0);
+     recommendation_label.set_wrap(true);
+     recommendation_label.set_hexpand(true);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1094:
+             total_label.set_text("…");
+             summary_label.set_text("Collecting systemd boot timing and service data…");
+             status_badge.set_text("ANALYZING");
+[31m-            for class in ["risk-safe", "risk-review", "risk-dangerous", "health-neutral"] {
+(B[m[32m+            for class in [
+(B[m[32m+                "risk-safe",
+(B[m[32m+                "risk-review",
+(B[m[32m+                "risk-dangerous",
+(B[m[32m+                "health-neutral",
+(B[m[32m+            ] {
+(B[m                 status_badge.remove_css_class(class);
+             }
+             status_badge.add_css_class("health-neutral");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1119:
+                 Ok(report) => {
+                     total_label_i.set_text(&format_boot_duration(report.total_secs));
+                     status_badge_i.set_text(&report.status_label.to_uppercase());
+[31m-                    for class in ["risk-safe", "risk-review", "risk-dangerous", "health-neutral"] {
+(B[m[32m+                    for class in [
+(B[m[32m+                        "risk-safe",
+(B[m[32m+                        "risk-review",
+(B[m[32m+                        "risk-dangerous",
+(B[m[32m+                        "health-neutral",
+(B[m[32m+                    ] {
+(B[m                         status_badge_i.remove_css_class(class);
+                     }
+                     status_badge_i.add_css_class(match report.status_label.as_str() {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1148:
+                         slow_units_box_i.remove(&child);
+                     }
+                     if report.slow_units.is_empty() {
+[31m-                        slow_units_box_i.append(&empty_state_label("No systemd blame data available."));
+(B[m[32m+                        slow_units_box_i
+(B[m[32m+                            .append(&empty_state_label("No systemd blame data available."));
+(B[m                     } else {
+                         for unit in report.slow_units.iter().take(8) {
+                             let row = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1155:
+                             let name = gtk::Label::new(Some(&unit.name));
+                             name.set_xalign(0.0);
+                             name.set_hexpand(true);
+[31m-                            let duration = gtk::Label::new(Some(&format!("{:.2}s", unit.duration_secs)));
+(B[m[32m+                            let duration =
+(B[m[32m+                                gtk::Label::new(Some(&format!("{:.2}s", unit.duration_secs)));
+(B[m                             duration.add_css_class("dim-label");
+                             row.append(&name);
+                             row.append(&duration);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1190:
+                         critical_box_i.remove(&child);
+                     }
+                     if report.critical_chain.is_empty() {
+[31m-                        critical_box_i.append(&empty_state_label("Critical-chain data is unavailable."));
+(B[m[32m+                        critical_box_i
+(B[m[32m+                            .append(&empty_state_label("Critical-chain data is unavailable."));
+(B[m                     } else {
+                         for (index, line) in report.critical_chain.iter().enumerate() {
+                             let row = gtk::Box::new(gtk::Orientation::Horizontal, 8);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1213:
+                 Err(mpsc::TryRecvError::Disconnected) => {
+                     total_label_i.set_text("—");
+                     status_badge_i.set_text("UNAVAILABLE");
+[31m-                    summary_label_i.set_text("Boot analysis worker stopped before returning a report.");
+(B[m[32m+                    summary_label_i
+(B[m[32m+                        .set_text("Boot analysis worker stopped before returning a report.");
+(B[m                     refresh_btn_i.set_sensitive(true);
+                     glib::ControlFlow::Break
+                 }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1239:
+ fn format_boot_duration(value: Option<f64>) -> String {
+     match value {
+         Some(seconds) if seconds >= 60.0 => {
+[31m-            format!("{}m {:.1}s", (seconds / 60.0).floor() as u64, seconds % 60.0)
+(B[m[32m+            format!(
+(B[m[32m+                "{}m {:.1}s",
+(B[m[32m+                (seconds / 60.0).floor() as u64,
+(B[m[32m+                seconds % 60.0
+(B[m[32m+            )
+(B[m         }
+         Some(seconds) => format!("{seconds:.1}s"),
+         None => "—".to_string(),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1395:
+                     summary_i.set_text(&report.summary);
+ 
+                     status_badge_i.set_text(&report.status_label.to_uppercase());
+[31m-                    for class in ["risk-safe", "risk-review", "risk-dangerous", "health-neutral"] {
+(B[m[32m+                    for class in [
+(B[m[32m+                        "risk-safe",
+(B[m[32m+                        "risk-review",
+(B[m[32m+                        "risk-dangerous",
+(B[m[32m+                        "health-neutral",
+(B[m[32m+                    ] {
+(B[m                         status_badge_i.remove_css_class(class);
+                     }
+                     status_badge_i.add_css_class(match report.status_label.as_str() {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1464:
+     box_.upcast()
+ }
+ 
+[31m-
+(B[m fn storage_intelligence_panel(home: PathBuf) -> gtk::Widget {
+     let card = gtk::Box::new(gtk::Orientation::Vertical, 12);
+     card.add_css_class("finding-card");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1548:
+                     summary_i.set_text(&report.summary);
+                     reclaimable_i.set_text(&format::bytes(report.current_reclaimable_bytes));
+                     delta_i.set_text(&format_signed_bytes(report.reclaimable_delta_bytes));
+[31m-                    rate_i.set_text(&report.daily_growth_bytes.map(format_signed_bytes).unwrap_or_else(|| "Learning".to_string()));
+(B[m[32m+                    rate_i.set_text(
+(B[m[32m+                        &report
+(B[m[32m+                            .daily_growth_bytes
+(B[m[32m+                            .map(format_signed_bytes)
+(B[m[32m+                            .unwrap_or_else(|| "Learning".to_string()),
+(B[m[32m+                    );
+(B[m                     confidence_i.set_text(report.confidence_label);
+                     context_i.set_text(&format!(
+                         "{} Smart Scan sample(s) • baseline age {} • category churn {}",
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:1571:
+                             name.set_hexpand(true);
+                             let current = gtk::Label::new(Some(&format::bytes(item.current_bytes)));
+                             current.add_css_class("dim-label");
+[31m-                            let change = gtk::Label::new(Some(&format_signed_bytes(item.delta_bytes)));
+(B[m[32m+                            let change =
+(B[m[32m+                                gtk::Label::new(Some(&format_signed_bytes(item.delta_bytes)));
+(B[m                             change.add_css_class(if item.delta_bytes > 0 {
+                                 "change-attention"
+                             } else {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:2181:
+                 meta.push(format!("{} freed", format::bytes(event.actual_freed_bytes)));
+             }
+             if event.protected_bytes > 0 {
+[31m-                meta.push(format!("{} protected", format::bytes(event.protected_bytes)));
+(B[m[32m+                meta.push(format!(
+(B[m[32m+                    "{} protected",
+(B[m[32m+                    format::bytes(event.protected_bytes)
+(B[m[32m+                ));
+(B[m             }
+             if event.restored_bytes > 0 {
+                 meta.push(format!("{} restored", format::bytes(event.restored_bytes)));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:2188:
+             }
+             if event.observed_bytes > 0 {
+[31m-                meta.push(format!("{} candidates", format::bytes(event.observed_bytes)));
+(B[m[32m+                meta.push(format!(
+(B[m[32m+                    "{} candidates",
+(B[m[32m+                    format::bytes(event.observed_bytes)
+(B[m[32m+                ));
+(B[m             }
+             if event.operations > 0 {
+                 meta.push(format!("{} operation(s)", event.operations));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:3617:
+     (row.upcast(), check_btn)
+ }
+ 
+[31m-
+(B[m struct HealthIntelligencePanel {
+     root: gtk::Widget,
+     refresh: Rc<dyn Fn()>,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:3671:
+     let grade = gtk::Label::new(Some("Analyzing…"));
+     grade.set_xalign(0.0);
+     grade.add_css_class("title-3");
+[31m-    let summary = gtk::Label::new(Some("Collecting disk, service, firewall, and network signals…"));
+(B[m[32m+    let summary = gtk::Label::new(Some(
+(B[m[32m+        "Collecting disk, service, firewall, and network signals…",
+(B[m[32m+    ));
+(B[m     summary.set_xalign(0.0);
+     summary.set_wrap(true);
+     summary.add_css_class("dim-label");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:3743:
+             let changes_i = changes.clone();
+             let refresh_btn_i = refresh_btn.clone();
+ 
+[31m-            glib::timeout_add_local(Duration::from_millis(70), move || {
+(B[m[31m-                match rx.try_recv() {
+(B[m[31m-                    Ok(report) => {
+(B[m[31m-                        score_i.set_text(&report.score.to_string());
+(B[m[31m-                        grade_i.set_text(&report.grade);
+(B[m[31m-                        summary_i.set_text(&report.summary);
+(B[m[31m-                        score_bar_i.set_fraction(report.score as f64 / 100.0);
+(B[m[32m+            glib::timeout_add_local(Duration::from_millis(70), move || match rx.try_recv() {
+(B[m[32m+                Ok(report) => {
+(B[m[32m+                    score_i.set_text(&report.score.to_string());
+(B[m[32m+                    grade_i.set_text(&report.grade);
+(B[m[32m+                    summary_i.set_text(&report.summary);
+(B[m[32m+                    score_bar_i.set_fraction(report.score as f64 / 100.0);
+(B[m 
+[31m-                        for class in ["health-excellent", "health-good", "health-attention", "health-critical"] {
+(B[m[31m-                            score_i.remove_css_class(class);
+(B[m[31m-                        }
+(B[m[31m-                        score_i.add_css_class(match report.score {
+(B[m[31m-                            90..=100 => "health-excellent",
+(B[m[31m-                            75..=89 => "health-good",
+(B[m[31m-                            55..=74 => "health-attention",
+(B[m[31m-                            _ => "health-critical",
+(B[m[31m-                        });
+(B[m[32m+                    for class in [
+(B[m[32m+                        "health-excellent",
+(B[m[32m+                        "health-good",
+(B[m[32m+                        "health-attention",
+(B[m[32m+                        "health-critical",
+(B[m[32m+                    ] {
+(B[m[32m+                        score_i.remove_css_class(class);
+(B[m[32m+                    }
+(B[m[32m+                    score_i.add_css_class(match report.score {
+(B[m[32m+                        90..=100 => "health-excellent",
+(B[m[32m+                        75..=89 => "health-good",
+(B[m[32m+                        55..=74 => "health-attention",
+(B[m[32m+                        _ => "health-critical",
+(B[m[32m+                    });
+(B[m 
+[31m-                        let mut baseline_text = report.baseline_label;
+(B[m[31m-                        if let Some(scan_label) = report.scan_baseline_label {
+(B[m[31m-                            baseline_text.push_str(" • ");
+(B[m[31m-                            baseline_text.push_str(&scan_label);
+(B[m[31m-                        }
+(B[m[31m-                        baseline_i.set_text(&baseline_text);
+(B[m[32m+                    let mut baseline_text = report.baseline_label;
+(B[m[32m+                    if let Some(scan_label) = report.scan_baseline_label {
+(B[m[32m+                        baseline_text.push_str(" • ");
+(B[m[32m+                        baseline_text.push_str(&scan_label);
+(B[m[32m+                    }
+(B[m[32m+                    baseline_i.set_text(&baseline_text);
+(B[m 
+[31m-                        while let Some(child) = domains_i.first_child() {
+(B[m[31m-                            domains_i.remove(&child);
+(B[m[31m-                        }
+(B[m[31m-                        for domain in report.domains {
+(B[m[31m-                            let row = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+(B[m[31m-                            row.add_css_class("health-domain-card");
+(B[m[31m-                            let text = gtk::Box::new(gtk::Orientation::Vertical, 2);
+(B[m[31m-                            text.set_hexpand(true);
+(B[m[31m-                            let name = gtk::Label::new(Some(&domain.name));
+(B[m[31m-                            name.set_xalign(0.0);
+(B[m[31m-                            name.add_css_class("heading");
+(B[m[31m-                            let detail = gtk::Label::new(Some(&domain.detail));
+(B[m[31m-                            detail.set_xalign(0.0);
+(B[m[31m-                            detail.set_wrap(true);
+(B[m[31m-                            detail.add_css_class("dim-label");
+(B[m[31m-                            let bar = gtk::ProgressBar::new();
+(B[m[31m-                            bar.set_fraction(domain.score.unwrap_or(0) as f64 / 100.0);
+(B[m[31m-                            bar.set_tooltip_text(Some(if domain.score.is_some() {
+(B[m[31m-                                "Verified domain score"
+(B[m[31m-                            } else {
+(B[m[31m-                                "Domain data unavailable; excluded from overall score"
+(B[m[31m-                            }));
+(B[m[31m-                            text.append(&name);
+(B[m[31m-                            text.append(&detail);
+(B[m[31m-                            text.append(&bar);
+(B[m[31m-                            row.append(&text);
+(B[m[31m-                            let value = gtk::Label::new(Some(
+(B[m[31m-                                &domain
+(B[m[31m-                                    .score
+(B[m[31m-                                    .map(|score| score.to_string())
+(B[m[31m-                                    .unwrap_or_else(|| "—".to_string()),
+(B[m[31m-                            ));
+(B[m[31m-                            value.add_css_class("risk-badge");
+(B[m[31m-                            value.add_css_class(domain.state.css_class());
+(B[m[31m-                            value.set_valign(gtk::Align::Center);
+(B[m[31m-                            row.append(&value);
+(B[m[31m-                            domains_i.append(&row);
+(B[m[31m-                        }
+(B[m[32m+                    while let Some(child) = domains_i.first_child() {
+(B[m[32m+                        domains_i.remove(&child);
+(B[m[32m+                    }
+(B[m[32m+                    for domain in report.domains {
+(B[m[32m+                        let row = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+(B[m[32m+                        row.add_css_class("health-domain-card");
+(B[m[32m+                        let text = gtk::Box::new(gtk::Orientation::Vertical, 2);
+(B[m[32m+                        text.set_hexpand(true);
+(B[m[32m+                        let name = gtk::Label::new(Some(&domain.name));
+(B[m[32m+                        name.set_xalign(0.0);
+(B[m[32m+                        name.add_css_class("heading");
+(B[m[32m+                        let detail = gtk::Label::new(Some(&domain.detail));
+(B[m[32m+                        detail.set_xalign(0.0);
+(B[m[32m+                        detail.set_wrap(true);
+(B[m[32m+                        detail.add_css_class("dim-label");
+(B[m[32m+                        let bar = gtk::ProgressBar::new();
+(B[m[32m+                        bar.set_fraction(domain.score.unwrap_or(0) as f64 / 100.0);
+(B[m[32m+                        bar.set_tooltip_text(Some(if domain.score.is_some() {
+(B[m[32m+                            "Verified domain score"
+(B[m[32m+                        } else {
+(B[m[32m+                            "Domain data unavailable; excluded from overall score"
+(B[m[32m+                        }));
+(B[m[32m+                        text.append(&name);
+(B[m[32m+                        text.append(&detail);
+(B[m[32m+                        text.append(&bar);
+(B[m[32m+                        row.append(&text);
+(B[m[32m+                        let value = gtk::Label::new(Some(
+(B[m[32m+                            &domain
+(B[m[32m+                                .score
+(B[m[32m+                                .map(|score| score.to_string())
+(B[m[32m+                                .unwrap_or_else(|| "—".to_string()),
+(B[m[32m+                        ));
+(B[m[32m+                        value.add_css_class("risk-badge");
+(B[m[32m+                        value.add_css_class(domain.state.css_class());
+(B[m[32m+                        value.set_valign(gtk::Align::Center);
+(B[m[32m+                        row.append(&value);
+(B[m[32m+                        domains_i.append(&row);
+(B[m[32m+                    }
+(B[m 
+[31m-                        while let Some(child) = signals_i.first_child() {
+(B[m[31m-                            signals_i.remove(&child);
+(B[m[31m-                        }
+(B[m[31m-                        for signal in report.signals {
+(B[m[31m-                            let row = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+(B[m[31m-                            row.add_css_class("health-signal-row");
+(B[m[31m-                            let text = gtk::Box::new(gtk::Orientation::Vertical, 2);
+(B[m[31m-                            text.set_hexpand(true);
+(B[m[31m-                            let name = gtk::Label::new(Some(&signal.title));
+(B[m[32m+                    while let Some(child) = signals_i.first_child() {
+(B[m[32m+                        signals_i.remove(&child);
+(B[m[32m+                    }
+(B[m[32m+                    for signal in report.signals {
+(B[m[32m+                        let row = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+(B[m[32m+                        row.add_css_class("health-signal-row");
+(B[m[32m+                        let text = gtk::Box::new(gtk::Orientation::Vertical, 2);
+(B[m[32m+                        text.set_hexpand(true);
+(B[m[32m+                        let name = gtk::Label::new(Some(&signal.title));
+(B[m[32m+                        name.set_xalign(0.0);
+(B[m[32m+                        name.add_css_class("heading");
+(B[m[32m+                        let detail = gtk::Label::new(Some(&signal.detail));
+(B[m[32m+                        detail.set_xalign(0.0);
+(B[m[32m+                        detail.set_wrap(true);
+(B[m[32m+                        detail.add_css_class("dim-label");
+(B[m[32m+                        text.append(&name);
+(B[m[32m+                        text.append(&detail);
+(B[m[32m+                        row.append(&text);
+(B[m[32m+                        let badge = gtk::Label::new(Some(signal.state.label()));
+(B[m[32m+                        badge.add_css_class("risk-badge");
+(B[m[32m+                        badge.add_css_class(signal.state.css_class());
+(B[m[32m+                        badge.set_valign(gtk::Align::Center);
+(B[m[32m+                        row.append(&badge);
+(B[m[32m+                        signals_i.append(&row);
+(B[m[32m+                    }
+(B[m[32m+
+(B[m[32m+                    while let Some(child) = changes_i.first_child() {
+(B[m[32m+                        changes_i.remove(&child);
+(B[m[32m+                    }
+(B[m[32m+                    if report.changes.is_empty() {
+(B[m[32m+                        let empty = gtk::Label::new(Some(
+(B[m[32m+                                "A baseline has been captured. Meaningful changes will appear here after future launches or Smart Scans.",
+(B[m[32m+                            ));
+(B[m[32m+                        empty.set_xalign(0.0);
+(B[m[32m+                        empty.set_wrap(true);
+(B[m[32m+                        empty.add_css_class("dim-label");
+(B[m[32m+                        changes_i.append(&empty);
+(B[m[32m+                    } else {
+(B[m[32m+                        for change in report.changes {
+(B[m[32m+                            let row = gtk::Box::new(gtk::Orientation::Vertical, 2);
+(B[m[32m+                            row.add_css_class("change-row");
+(B[m[32m+                            row.add_css_class(change.tone.css_class());
+(B[m[32m+                            let name = gtk::Label::new(Some(&change.title));
+(B[m                             name.set_xalign(0.0);
+                             name.add_css_class("heading");
+[31m-                            let detail = gtk::Label::new(Some(&signal.detail));
+(B[m[32m+                            let detail = gtk::Label::new(Some(&change.detail));
+(B[m                             detail.set_xalign(0.0);
+                             detail.set_wrap(true);
+                             detail.add_css_class("dim-label");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/app.rs:3825:
+[31m-                            text.append(&name);
+(B[m[31m-                            text.append(&detail);
+(B[m[31m-                            row.append(&text);
+(B[m[31m-                            let badge = gtk::Label::new(Some(signal.state.label()));
+(B[m[31m-                            badge.add_css_class("risk-badge");
+(B[m[31m-                            badge.add_css_class(signal.state.css_class());
+(B[m[31m-                            badge.set_valign(gtk::Align::Center);
+(B[m[31m-                            row.append(&badge);
+(B[m[31m-                            signals_i.append(&row);
+(B[m[32m+                            row.append(&name);
+(B[m[32m+                            row.append(&detail);
+(B[m[32m+                            changes_i.append(&row);
+(B[m                         }
+[31m-
+(B[m[31m-                        while let Some(child) = changes_i.first_child() {
+(B[m[31m-                            changes_i.remove(&child);
+(B[m[31m-                        }
+(B[m[31m-                        if report.changes.is_empty() {
+(B[m[31m-                            let empty = gtk::Label::new(Some(
+(B[m[31m-                                "A baseline has been captured. Meaningful changes will appear here after future launches or Smart Scans.",
+(B[m[31m-                            ));
+(B[m[31m-                            empty.set_xalign(0.0);
+(B[m[31m-                            empty.set_wrap(true);
+(B[m[31m-                            empty.add_css_class("dim-label");
+(B[m[31m-                            changes_i.append(&empty);
+(B[m[31m-                        } else {
+(B[m[31m-                            for change in report.changes {
+(B[m[31m-                                let row = gtk::Box::new(gtk::Orientation::Vertical, 2);
+(B[m[31m-                                row.add_css_class("change-row");
+(B[m[31m-                                row.add_css_class(change.tone.css_class());
+(B[m[31m-                                let name = gtk::Label::new(Some(&change.title));
+(B[m[31m-                                name.set_xalign(0.0);
+(B[m[31m-                                name.add_css_class("heading");
+(B[m[31m-                                let detail = gtk::Label::new(Some(&change.detail));
+(B[m[31m-                                detail.set_xalign(0.0);
+(B[m[31m-                                detail.set_wrap(true);
+(B[m[31m-                                detail.add_css_class("dim-label");
+(B[m[31m-                                row.append(&name);
+(B[m[31m-                                row.append(&detail);
+(B[m[31m-                                changes_i.append(&row);
+(B[m[31m-                            }
+(B[m[31m-                        }
+(B[m[31m-
+(B[m[31m-                        refresh_btn_i.set_sensitive(true);
+(B[m[31m-                        glib::ControlFlow::Break
+(B[m                     }
+[31m-                    Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
+(B[m[31m-                    Err(mpsc::TryRecvError::Disconnected) => {
+(B[m[31m-                        grade_i.set_text("Health analysis unavailable");
+(B[m[31m-                        summary_i.set_text("The health worker stopped before returning a report.");
+(B[m[31m-                        refresh_btn_i.set_sensitive(true);
+(B[m[31m-                        glib::ControlFlow::Break
+(B[m[31m-                    }
+(B[m[32m+
+(B[m[32m+                    refresh_btn_i.set_sensitive(true);
+(B[m[32m+                    glib::ControlFlow::Break
+(B[m[32m+                }
+(B[m[32m+                Err(mpsc::TryRecvError::Empty) => glib::ControlFlow::Continue,
+(B[m[32m+                Err(mpsc::TryRecvError::Disconnected) => {
+(B[m[32m+                    grade_i.set_text("Health analysis unavailable");
+(B[m[32m+                    summary_i.set_text("The health worker stopped before returning a report.");
+(B[m[32m+                    refresh_btn_i.set_sensitive(true);
+(B[m[32m+                    glib::ControlFlow::Break
+(B[m                 }
+             });
+         })
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:1:
+ use crate::{
+[31m-    cleanup_policy,
+(B[m[31m-    health,
+(B[m[32m+    cleanup_policy, health,
+(B[m     model::{CleanupCandidate, CleanupRisk, ExecutionKind},
+     notification_center::{self, NotificationSeverity},
+     quarantine,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:125:
+         on_calendar(config)
+     );
+ 
+[31m-    write_private(&dir.join("linuxcare-maintenance.service"), service.as_bytes())?;
+(B[m[32m+    write_private(
+(B[m[32m+        &dir.join("linuxcare-maintenance.service"),
+(B[m[32m+        service.as_bytes(),
+(B[m[32m+    )?;
+(B[m     write_private(&dir.join("linuxcare-maintenance.timer"), timer.as_bytes())?;
+ 
+     run_systemctl_user(["daemon-reload"])?;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:144:
+ pub fn disable_schedule(home: &Path) -> io::Result<()> {
+     let _ = run_systemctl_user(["disable", "--now", "linuxcare-maintenance.timer"]);
+     let dir = user_systemd_dir(home);
+[31m-    for name in ["linuxcare-maintenance.timer", "linuxcare-maintenance.service"] {
+(B[m[32m+    for name in [
+(B[m[32m+        "linuxcare-maintenance.timer",
+(B[m[32m+        "linuxcare-maintenance.service",
+(B[m[32m+    ] {
+(B[m         let path = dir.join(name);
+         if path.exists() {
+             fs::remove_file(path)?;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:158:
+ 
+ pub fn status(home: &Path) -> AutomationStatus {
+     let timer_path = user_systemd_dir(home).join("linuxcare-maintenance.timer");
+[31m-    let enabled = command_success("systemctl", &["--user", "is-enabled", "linuxcare-maintenance.timer"]);
+(B[m[31m-    let active = command_success("systemctl", &["--user", "is-active", "linuxcare-maintenance.timer"]);
+(B[m[32m+    let enabled = command_success(
+(B[m[32m+        "systemctl",
+(B[m[32m+        &["--user", "is-enabled", "linuxcare-maintenance.timer"],
+(B[m[32m+    );
+(B[m[32m+    let active = command_success(
+(B[m[32m+        "systemctl",
+(B[m[32m+        &["--user", "is-active", "linuxcare-maintenance.timer"],
+(B[m[32m+    );
+(B[m     let detail = if enabled && active {
+         "User systemd timer is enabled and active.".to_string()
+     } else if timer_path.exists() {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:166:
+[31m-        "Timer files exist but systemd does not report the timer as both enabled and active.".to_string()
+(B[m[32m+        "Timer files exist but systemd does not report the timer as both enabled and active."
+(B[m[32m+            .to_string()
+(B[m     } else {
+         "No LinuxCare user timer is installed.".to_string()
+     };
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:322:
+         } else {
+             NotificationSeverity::Info
+         };
+[31m-        let _ = notification_center::emit(home, "scheduled-maintenance", title, &body, severity, false);
+(B[m[32m+        let _ =
+(B[m[32m+            notification_center::emit(home, "scheduled-maintenance", title, &body, severity, false);
+(B[m     }
+ 
+     Ok(report)
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:330:
+ 
+ fn validate_config(config: &AutomationConfig) -> io::Result<()> {
+     if config.hour > 23 || config.minute > 59 {
+[31m-        return Err(io::Error::new(io::ErrorKind::InvalidInput, "invalid schedule time"));
+(B[m[32m+        return Err(io::Error::new(
+(B[m[32m+            io::ErrorKind::InvalidInput,
+(B[m[32m+            "invalid schedule time",
+(B[m[32m+        ));
+(B[m     }
+[31m-    if !matches!(config.weekday.as_str(), "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun") {
+(B[m[31m-        return Err(io::Error::new(io::ErrorKind::InvalidInput, "invalid weekday"));
+(B[m[32m+    if !matches!(
+(B[m[32m+        config.weekday.as_str(),
+(B[m[32m+        "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun"
+(B[m[32m+    ) {
+(B[m[32m+        return Err(io::Error::new(
+(B[m[32m+            io::ErrorKind::InvalidInput,
+(B[m[32m+            "invalid weekday",
+(B[m[32m+        ));
+(B[m     }
+     Ok(())
+ }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:341:
+ fn on_calendar(config: &AutomationConfig) -> String {
+     match config.cadence {
+         AutomationCadence::Daily => format!("*-*-* {:02}:{:02}:00", config.hour, config.minute),
+[31m-        AutomationCadence::Weekly => format!("{} *-*-* {:02}:{:02}:00", config.weekday, config.hour, config.minute),
+(B[m[32m+        AutomationCadence::Weekly => format!(
+(B[m[32m+            "{} *-*-* {:02}:{:02}:00",
+(B[m[32m+            config.weekday, config.hour, config.minute
+(B[m[32m+        ),
+(B[m     }
+ }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:385:
+ }
+ 
+ fn run_systemctl_user<const N: usize>(args: [&str; N]) -> io::Result<()> {
+[31m-    let status = Command::new("systemctl").arg("--user").args(args).status()?;
+(B[m[32m+    let status = Command::new("systemctl")
+(B[m[32m+        .arg("--user")
+(B[m[32m+        .args(args)
+(B[m[32m+        .status()?;
+(B[m     if status.success() {
+         Ok(())
+     } else {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:392:
+[31m-        Err(io::Error::other(format!("systemctl --user failed with {status}")))
+(B[m[32m+        Err(io::Error::other(format!(
+(B[m[32m+            "systemctl --user failed with {status}"
+(B[m[32m+        )))
+(B[m     }
+ }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:396:
+[31m-
+(B[m fn timer_properties() -> (Option<String>, Option<String>) {
+     let output = Command::new("systemctl")
+         .args([
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/automation_engine.rs:456:
+ }
+ 
+ fn save_json_private<T: Serialize>(path: &Path, value: &T) -> io::Result<()> {
+[31m-    let parent = path.parent().ok_or_else(|| io::Error::other("config path has no parent"))?;
+(B[m[32m+    let parent = path
+(B[m[32m+        .parent()
+(B[m[32m+        .ok_or_else(|| io::Error::other("config path has no parent"))?;
+(B[m     fs::create_dir_all(parent)?;
+     set_private_dir(parent)?;
+     let payload = serde_json::to_vec_pretty(value).map_err(io::Error::other)?;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/battery.rs:104:
+         }
+     }
+ 
+[32m+    report.batteries.sort_by_key(|battery| {
+(B[m[32m+        (
+(B[m[32m+            battery.scope.as_deref() != Some("System"),
+(B[m[32m+            battery.name.clone(),
+(B[m[32m+        )
+(B[m[32m+    });
+(B[m     report
+[31m-        .batteries
+(B[m[31m-        .sort_by_key(|battery| (battery.scope.as_deref() != Some("System"), battery.name.clone()));
+(B[m[31m-    report
+(B[m }
+ 
+ pub fn collect_report_with_history(home: &Path) -> BatteryLabReport {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/battery.rs:171:
+                 .collect::<Vec<_>>();
+             let first = samples.first()?;
+             let last = samples.last()?;
+[31m-            let span_hours = last.timestamp_unix.saturating_sub(first.timestamp_unix) as f64 / 3600.0;
+(B[m[32m+            let span_hours =
+(B[m[32m+                last.timestamp_unix.saturating_sub(first.timestamp_unix) as f64 / 3600.0;
+(B[m             let health_delta_percent = if span_hours >= 24.0 {
+                 match (first.health_percent, last.health_percent) {
+                     (Some(before), Some(after)) => Some(after - before),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/battery.rs:219:
+ }
+ 
+ fn save_history(path: &Path, history: &[BatteryHistorySample]) -> io::Result<()> {
+[31m-    let dir = path
+(B[m[31m-        .parent()
+(B[m[31m-        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "battery state path has no parent"))?;
+(B[m[32m+    let dir = path.parent().ok_or_else(|| {
+(B[m[32m+        io::Error::new(
+(B[m[32m+            io::ErrorKind::InvalidInput,
+(B[m[32m+            "battery state path has no parent",
+(B[m[32m+        )
+(B[m[32m+    })?;
+(B[m     fs::create_dir_all(dir)?;
+     #[cfg(unix)]
+     {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/battery.rs:232:
+         .duration_since(UNIX_EPOCH)
+         .unwrap_or_default()
+         .as_nanos();
+[31m-    let tmp = dir.join(format!(".battery-history-{}-{nonce}.tmp", std::process::id()));
+(B[m[32m+    let tmp = dir.join(format!(
+(B[m[32m+        ".battery-history-{}-{nonce}.tmp",
+(B[m[32m+        std::process::id()
+(B[m[32m+    ));
+(B[m     let payload = serde_json::to_vec_pretty(history)
+         .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+     let mut file = OpenOptions::new().create_new(true).write(true).open(&tmp)?;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/battery.rs:267:
+     let raw_charge_full = read_f64(&path.join("charge_full"));
+     let raw_charge_design = read_f64(&path.join("charge_full_design"));
+ 
+[31m-    let voltage_now_v =
+(B[m[31m-        read_f64(&path.join("voltage_now")).map(|value| value / 1_000_000.0);
+(B[m[32m+    let voltage_now_v = read_f64(&path.join("voltage_now")).map(|value| value / 1_000_000.0);
+(B[m     let voltage_design_v =
+         read_f64(&path.join("voltage_min_design")).map(|value| value / 1_000_000.0);
+     let voltage_v = voltage_now_v.or(voltage_design_v);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/battery.rs:300:
+ 
+     let capacity_percent = read_u64(&path.join("capacity"))
+         .map(|value| value.min(100) as u8)
+[31m-        .or_else(|| match (raw_energy_now, raw_energy_full) {
+(B[m[31m-            (Some(now), Some(full)) => ratio_percent(Some(now), Some(full)),
+(B[m[31m-            _ => match (raw_charge_now, raw_charge_full) {
+(B[m[32m+        .or_else(|| {
+(B[m[32m+            match (raw_energy_now, raw_energy_full) {
+(B[m                 (Some(now), Some(full)) => ratio_percent(Some(now), Some(full)),
+[31m-                _ => None,
+(B[m[31m-            },
+(B[m[31m-        }
+(B[m[31m-        .map(|value| value.clamp(0.0, 100.0).round() as u8));
+(B[m[32m+                _ => match (raw_charge_now, raw_charge_full) {
+(B[m[32m+                    (Some(now), Some(full)) => ratio_percent(Some(now), Some(full)),
+(B[m[32m+                    _ => None,
+(B[m[32m+                },
+(B[m[32m+            }
+(B[m[32m+            .map(|value| value.clamp(0.0, 100.0).round() as u8)
+(B[m[32m+        });
+(B[m 
+     let status = read_text(&path.join("status")).unwrap_or_else(|| "Unknown".to_string());
+     let time_remaining_minutes = estimate_minutes(
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/boot.rs:28:
+     let critical_text = command_output("systemd-analyze", &["critical-chain", "--no-pager"]);
+     let failed_text = command_output(
+         "systemctl",
+[31m-        &["--failed", "--type=service", "--no-legend", "--plain", "--no-pager"],
+(B[m[32m+        &[
+(B[m[32m+            "--failed",
+(B[m[32m+            "--type=service",
+(B[m[32m+            "--no-legend",
+(B[m[32m+            "--plain",
+(B[m[32m+            "--no-pager",
+(B[m[32m+        ],
+(B[m     );
+ 
+     let phases = time_text
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/boot.rs:35:
+         .as_deref()
+         .map(parse_boot_time)
+         .unwrap_or_default();
+[31m-    let slow_units = blame_text
+(B[m[31m-        .as_deref()
+(B[m[31m-        .map(parse_blame)
+(B[m[31m-        .unwrap_or_default();
+(B[m[32m+    let slow_units = blame_text.as_deref().map(parse_blame).unwrap_or_default();
+(B[m     let failed_units = failed_text
+         .as_deref()
+         .map(parse_failed_units)
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/boot.rs:245:
+     }
+ 
+     if let Some(unit) = slow_units.first() {
+[31m-        if unit.name.contains("NetworkManager-wait-online") || unit.name.contains("systemd-networkd-wait-online") {
+(B[m[32m+        if unit.name.contains("NetworkManager-wait-online")
+(B[m[32m+            || unit.name.contains("systemd-networkd-wait-online")
+(B[m[32m+        {
+(B[m             return format!(
+                 "{} is the slowest unit at {:.1}s. Wait-online services may be required by workloads that depend on network-online.target, so LinuxCare recommends dependency review instead of blind disabling.",
+                 unit.name, unit.duration_secs
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/cleanup_policy.rs:63:
+     Ok(())
+ }
+ 
+[31m-
+(B[m fn normalize(mut policy: CleanupPolicy) -> CleanupPolicy {
+     policy.quarantine_retention_secs = match policy.quarantine_retention_secs {
+         1800 | 3600 | 86400 | 604800 => policy.quarantine_retention_secs,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/cleanup_policy.rs:105:
+         let parsed: CleanupPolicy = serde_json::from_str(old).unwrap();
+         let normalized = normalize(parsed);
+         assert_eq!(normalized.quarantine_retention_secs, 3600);
+[31m-        assert_eq!(normalized.quarantine_limit_bytes, CleanupPolicy::default().quarantine_limit_bytes);
+(B[m[31m-        assert_eq!(normalized.automation_max_bytes, CleanupPolicy::default().automation_max_bytes);
+(B[m[32m+        assert_eq!(
+(B[m[32m+            normalized.quarantine_limit_bytes,
+(B[m[32m+            CleanupPolicy::default().quarantine_limit_bytes
+(B[m[32m+        );
+(B[m[32m+        assert_eq!(
+(B[m[32m+            normalized.automation_max_bytes,
+(B[m[32m+            CleanupPolicy::default().automation_max_bytes
+(B[m[32m+        );
+(B[m         assert!(normalized.auto_purge_expired);
+     }
+ }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/container_analyzer.rs:40:
+ 
+ impl ContainerEngineReport {
+     pub fn total_size_bytes(&self) -> u64 {
+[31m-        self.categories.iter().filter_map(|item| item.size_bytes).sum()
+(B[m[32m+        self.categories
+(B[m[32m+            .iter()
+(B[m[32m+            .filter_map(|item| item.size_bytes)
+(B[m[32m+            .sum()
+(B[m     }
+ 
+     pub fn reclaimable_bytes(&self) -> u64 {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/container_analyzer.rs:77:
+         .map(|value| value.trim().to_string())
+         .filter(|value| !value.is_empty());
+ 
+[31m-    match run_cli(&["docker", "system", "df", "--format", "{{json .}}"] ) {
+(B[m[32m+    match run_cli(&["docker", "system", "df", "--format", "{{json .}}"]) {
+(B[m         Ok(output) => {
+             let categories = parse_docker_df(&output);
+             ContainerEngineReport {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/deep_network.rs:78:
+             continue;
+         };
+         process_visible_sockets = process_visible_sockets.saturating_add(1);
+[31m-        let entry = grouped
+(B[m[31m-            .entry((process.clone(), socket.pid))
+(B[m[31m-            .or_default();
+(B[m[32m+        let entry = grouped.entry((process.clone(), socket.pid)).or_default();
+(B[m         entry.sockets = entry.sockets.saturating_add(1);
+         if socket.protocol == "tcp" && socket.state.eq_ignore_ascii_case("ESTAB") {
+             entry.established_tcp = entry.established_tcp.saturating_add(1);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/deep_network.rs:160:
+         .status()
+         .map(|status| status.success())
+         .unwrap_or(false);
+[31m-    let unprivileged_bpf_disabled = fs::read_to_string("/proc/sys/kernel/unprivileged_bpf_disabled")
+(B[m[31m-        .ok()
+(B[m[31m-        .and_then(|value| value.trim().parse::<u8>().ok());
+(B[m[32m+    let unprivileged_bpf_disabled =
+(B[m[32m+        fs::read_to_string("/proc/sys/kernel/unprivileged_bpf_disabled")
+(B[m[32m+            .ok()
+(B[m[32m+            .and_then(|value| value.trim().parse::<u8>().ok());
+(B[m 
+     EbpfReadiness {
+         bpffs_mounted,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/deep_network.rs:234:
+ }
+ 
+ fn yes_no(value: bool) -> &'static str {
+[31m-    if value { "yes" } else { "no" }
+(B[m[32m+    if value {
+(B[m[32m+        "yes"
+(B[m[32m+    } else {
+(B[m[32m+        "no"
+(B[m[32m+    }
+(B[m }
+ 
+ #[cfg(test)]
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/deep_network.rs:243:
+ 
+     #[test]
+     fn parses_tcp_ss_line_with_process() {
+[31m-        let line = "tcp ESTAB 0 0 192.168.1.20:42310 1.1.1.1:443 users:((\"firefox\",pid=4242,fd=91))";
+(B[m[32m+        let line =
+(B[m[32m+            "tcp ESTAB 0 0 192.168.1.20:42310 1.1.1.1:443 users:((\"firefox\",pid=4242,fd=91))";
+(B[m         let socket = parse_ss_line(line).expect("socket");
+         assert_eq!(socket.protocol, "tcp");
+         assert_eq!(socket.state, "ESTAB");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/executor.rs:1:
+ use crate::{
+     cleanup,
+     model::{CleanupCandidate, CleanupOperationResult, ExecutionKind, PrivilegedAction},
+[31m-    quarantine,
+(B[m     providers::{JournalProvider, PackageProvider, SnapProvider, UbuntuSystemProvider},
+[32m+    quarantine,
+(B[m };
+ use std::{path::PathBuf, sync::mpsc::Sender, thread};
+ use thiserror::Error;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/executor.rs:115:
+             });
+ 
+             let result: Result<ExecutionOutcome, ExecutionError> = match candidate.execution {
+[31m-                ExecutionKind::UserAllowedDirectory => {
+(B[m[31m-                    quarantine::quarantine_candidate(&candidate, &home)
+(B[m[31m-                        .map(|outcome| ExecutionOutcome {
+(B[m[31m-                            recovered_bytes: 0,
+(B[m[31m-                            quarantined_bytes: outcome.protected_bytes,
+(B[m[31m-                            undo_id: Some(outcome.id),
+(B[m[31m-                            message: "Moved to Safety Quarantine; disk space is reclaimed only after purge"
+(B[m[31m-                                .to_string(),
+(B[m[31m-                        })
+(B[m[31m-                        .map_err(|err| ExecutionError::Provider(err.to_string()))
+(B[m[31m-                }
+(B[m[32m+                ExecutionKind::UserAllowedDirectory => quarantine::quarantine_candidate(
+(B[m[32m+                    &candidate, &home,
+(B[m[32m+                )
+(B[m[32m+                .map(|outcome| ExecutionOutcome {
+(B[m[32m+                    recovered_bytes: 0,
+(B[m[32m+                    quarantined_bytes: outcome.protected_bytes,
+(B[m[32m+                    undo_id: Some(outcome.id),
+(B[m[32m+                    message: "Moved to Safety Quarantine; disk space is reclaimed only after purge"
+(B[m[32m+                        .to_string(),
+(B[m[32m+                })
+(B[m[32m+                .map_err(|err| ExecutionError::Provider(err.to_string())),
+(B[m                 ExecutionKind::PrivilegedProvider => {
+                     let p = provider.get_or_insert_with(|| {
+                         UbuntuSystemProvider::connect().map_err(|e| e.to_string())
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/executor.rs:132:
+                     });
+                     match p {
+                         Ok(p) => execute_privileged(p, &candidate).map(|bytes| {
+[31m-                            ExecutionOutcome::freed(bytes, if bytes == 0 {
+(B[m[31m-                                "Completed successfully; reclaimed size was not reported"
+(B[m[31m-                            } else {
+(B[m[31m-                                "Cleaned successfully"
+(B[m[31m-                            })
+(B[m[32m+                            ExecutionOutcome::freed(
+(B[m[32m+                                bytes,
+(B[m[32m+                                if bytes == 0 {
+(B[m[32m+                                    "Completed successfully; reclaimed size was not reported"
+(B[m[32m+                                } else {
+(B[m[32m+                                    "Cleaned successfully"
+(B[m[32m+                                },
+(B[m[32m+                            )
+(B[m                         }),
+                         Err(err) => Err(ExecutionError::Provider(err.clone())),
+                     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/executor.rs:156:
+                     FlatpakCliProvider
+                         .remove_unused_runtimes(user_scope)
+                         .map(|bytes| {
+[31m-                            ExecutionOutcome::freed(bytes, if bytes == 0 {
+(B[m[31m-                                "Completed successfully; reclaimed size was not reported"
+(B[m[31m-                            } else {
+(B[m[31m-                                "Cleaned successfully"
+(B[m[31m-                            })
+(B[m[32m+                            ExecutionOutcome::freed(
+(B[m[32m+                                bytes,
+(B[m[32m+                                if bytes == 0 {
+(B[m[32m+                                    "Completed successfully; reclaimed size was not reported"
+(B[m[32m+                                } else {
+(B[m[32m+                                    "Cleaned successfully"
+(B[m[32m+                                },
+(B[m[32m+                            )
+(B[m                         })
+                         .map_err(|e| ExecutionError::Provider(e.to_string()))
+                 }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/executor.rs:172:
+                     let msg = outcome.message.clone();
+                     (crate::model::CleanupStatus::Success, Some(outcome), msg)
+                 }
+[31m-                Err(err) => (
+(B[m[31m-                    crate::model::CleanupStatus::Failed,
+(B[m[31m-                    None,
+(B[m[31m-                    format!("{err}"),
+(B[m[31m-                ),
+(B[m[32m+                Err(err) => (crate::model::CleanupStatus::Failed, None, format!("{err}")),
+(B[m             };
+             let rec_bytes = outcome
+                 .as_ref()
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/filesystem_doctor.rs:165:
+ 
+ fn should_show_fs(fs_type: &str, mount: &Path) -> bool {
+     const PSEUDO: &[&str] = &[
+[31m-        "proc", "sysfs", "devtmpfs", "devpts", "tmpfs", "cgroup", "cgroup2", "pstore",
+(B[m[31m-        "securityfs", "debugfs", "tracefs", "configfs", "fusectl", "mqueue", "hugetlbfs",
+(B[m[31m-        "autofs", "binfmt_misc", "rpc_pipefs", "nsfs", "overlay", "squashfs",
+(B[m[32m+        "proc",
+(B[m[32m+        "sysfs",
+(B[m[32m+        "devtmpfs",
+(B[m[32m+        "devpts",
+(B[m[32m+        "tmpfs",
+(B[m[32m+        "cgroup",
+(B[m[32m+        "cgroup2",
+(B[m[32m+        "pstore",
+(B[m[32m+        "securityfs",
+(B[m[32m+        "debugfs",
+(B[m[32m+        "tracefs",
+(B[m[32m+        "configfs",
+(B[m[32m+        "fusectl",
+(B[m[32m+        "mqueue",
+(B[m[32m+        "hugetlbfs",
+(B[m[32m+        "autofs",
+(B[m[32m+        "binfmt_misc",
+(B[m[32m+        "rpc_pipefs",
+(B[m[32m+        "nsfs",
+(B[m[32m+        "overlay",
+(B[m[32m+        "squashfs",
+(B[m     ];
+     if PSEUDO.contains(&fs_type) {
+         return false;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/gnome_integration.rs:1:
+ use serde::Deserialize;
+[31m-use std::{fs, path::{Path, PathBuf}, process::{Command, Stdio}};
+(B[m[32m+use std::{
+(B[m[32m+    fs,
+(B[m[32m+    path::{Path, PathBuf},
+(B[m[32m+    process::{Command, Stdio},
+(B[m[32m+};
+(B[m 
+ pub const EXTENSION_UUID: &str = "linuxcare-vitals@milmit.net";
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/gnome_integration.rs:22:
+ pub fn status(home: &Path) -> GnomeIntegrationStatus {
+     let shell_version = detect_shell_major();
+     let locations = [
+[31m-        home.join(".local/share/gnome-shell/extensions").join(EXTENSION_UUID),
+(B[m[32m+        home.join(".local/share/gnome-shell/extensions")
+(B[m[32m+            .join(EXTENSION_UUID),
+(B[m         PathBuf::from("/usr/share/gnome-shell/extensions").join(EXTENSION_UUID),
+     ];
+[31m-    let install_location = locations.into_iter().find(|path| path.join("metadata.json").exists());
+(B[m[32m+    let install_location = locations
+(B[m[32m+        .into_iter()
+(B[m[32m+        .find(|path| path.join("metadata.json").exists());
+(B[m     let extension_installed = install_location.is_some();
+     let shell_supported = match (shell_version, install_location.as_deref()) {
+         (Some(version), Some(path)) => metadata_supports(path, version),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/gnome_integration.rs:42:
+     } else if shell_supported == Some(false) {
+         format!(
+             "The installed extension metadata does not list GNOME Shell {} as supported.",
+[31m-            shell_version.map(|value| value.to_string()).unwrap_or_else(|| "unknown".to_string())
+(B[m[32m+            shell_version
+(B[m[32m+                .map(|value| value.to_string())
+(B[m[32m+                .unwrap_or_else(|| "unknown".to_string())
+(B[m         )
+     } else {
+         match extension_enabled {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/gnome_integration.rs:100:
+     let payload = fs::read(root.join("metadata.json")).ok()?;
+     let metadata: ExtensionMetadata = serde_json::from_slice(&payload).ok()?;
+     Some(metadata.shell_versions.iter().any(|version| {
+[31m-        version.split('.').next().and_then(|value| value.parse::<u32>().ok()) == Some(shell_version)
+(B[m[32m+        version
+(B[m[32m+            .split('.')
+(B[m[32m+            .next()
+(B[m[32m+            .and_then(|value| value.parse::<u32>().ok())
+(B[m[32m+            == Some(shell_version)
+(B[m     }))
+ }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/gnome_integration.rs:114:
+         return None;
+     }
+     let text = String::from_utf8_lossy(&output.stdout).to_ascii_lowercase();
+[31m-    if text.lines().any(|line| line.trim().starts_with("state:") && line.contains("enabled")) {
+(B[m[32m+    if text
+(B[m[32m+        .lines()
+(B[m[32m+        .any(|line| line.trim().starts_with("state:") && line.contains("enabled"))
+(B[m[32m+    {
+(B[m         Some(true)
+     } else if text.lines().any(|line| line.trim().starts_with("state:")) {
+         Some(false)
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:109:
+         }
+ 
+         let root = entry.path();
+[31m-        if !root.join("device").exists() && !name.starts_with("nvme") && !name.starts_with("mmcblk") {
+(B[m[32m+        if !root.join("device").exists() && !name.starts_with("nvme") && !name.starts_with("mmcblk")
+(B[m[32m+        {
+(B[m             continue;
+         }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:135:
+     devices
+ }
+ 
+[31m-
+(B[m pub fn smartctl_command_error(text: &str) -> Option<String> {
+     let value: Value = serde_json::from_str(text).ok()?;
+     let exit_status = value
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:157:
+                     .map(str::to_string)
+             })
+         })
+[31m-        .unwrap_or_else(|| format!("smartctl command failed with status bits 0x{:02x}", exit_status & 0x07));
+(B[m[32m+        .unwrap_or_else(|| {
+(B[m[32m+            format!(
+(B[m[32m+                "smartctl command failed with status bits 0x{:02x}",
+(B[m[32m+                exit_status & 0x07
+(B[m[32m+            )
+(B[m[32m+        });
+(B[m     Some(message)
+ }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:177:
+     let smart_enabled = value
+         .pointer("/smart_support/enabled")
+         .and_then(Value::as_bool);
+[31m-    let passed = value.pointer("/smart_status/passed").and_then(Value::as_bool);
+(B[m[32m+    let passed = value
+(B[m[32m+        .pointer("/smart_status/passed")
+(B[m[32m+        .and_then(Value::as_bool);
+(B[m     let temperature_c = value
+         .pointer("/temperature/current")
+         .and_then(number_as_f64)
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:266:
+ 
+ fn collect_system_identity() -> SystemIdentity {
+     let vendor = read_trimmed("/sys/class/dmi/id/sys_vendor").unwrap_or_else(|| "Unknown".into());
+[31m-    let product = read_trimmed("/sys/class/dmi/id/product_name").unwrap_or_else(|| "Unknown".into());
+(B[m[32m+    let product =
+(B[m[32m+        read_trimmed("/sys/class/dmi/id/product_name").unwrap_or_else(|| "Unknown".into());
+(B[m     let board_vendor = read_trimmed("/sys/class/dmi/id/board_vendor").unwrap_or_default();
+     let board_name = read_trimmed("/sys/class/dmi/id/board_name").unwrap_or_default();
+     let board = match (board_vendor.is_empty(), board_name.is_empty()) {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:275:
+         (true, false) => board_name,
+         (true, true) => "Unknown".into(),
+     };
+[31m-    let bios_version = read_trimmed("/sys/class/dmi/id/bios_version").unwrap_or_else(|| "Unknown".into());
+(B[m[32m+    let bios_version =
+(B[m[32m+        read_trimmed("/sys/class/dmi/id/bios_version").unwrap_or_else(|| "Unknown".into());
+(B[m 
+     SystemIdentity {
+         vendor,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:351:
+         }
+         let driver = fs::read_link(device.join("driver"))
+             .ok()
+[31m-            .and_then(|path| path.file_name().map(|name| name.to_string_lossy().to_string()))
+(B[m[32m+            .and_then(|path| {
+(B[m[32m+                path.file_name()
+(B[m[32m+                    .map(|name| name.to_string_lossy().to_string())
+(B[m[32m+            })
+(B[m             .unwrap_or_else(|| "Unknown".into());
+         let vendor = read_trimmed(device.join("vendor")).unwrap_or_default();
+         let id = read_trimmed(device.join("device")).unwrap_or_default();
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:358:
+         let pci_id = if vendor.is_empty() && id.is_empty() {
+             "Unknown".into()
+         } else {
+[31m-            format!("{}:{}", vendor.trim_start_matches("0x"), id.trim_start_matches("0x"))
+(B[m[32m+            format!(
+(B[m[32m+                "{}:{}",
+(B[m[32m+                vendor.trim_start_matches("0x"),
+(B[m[32m+                id.trim_start_matches("0x")
+(B[m[32m+            )
+(B[m         };
+[31m-        gpus.push(GpuIdentity { card, driver, pci_id });
+(B[m[32m+        gpus.push(GpuIdentity {
+(B[m[32m+            card,
+(B[m[32m+            driver,
+(B[m[32m+            pci_id,
+(B[m[32m+        });
+(B[m     }
+     gpus.sort_by(|a, b| a.card.cmp(&b.card));
+     gpus
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/hardware.rs:516:
+ 
+     #[test]
+     fn separates_smartctl_command_errors_from_health_status_bits() {
+[31m-        let command_error = r#"{"smartctl":{"exit_status":2,"messages":[{"string":"Device open failed"}]}}"#;
+(B[m[32m+        let command_error =
+(B[m[32m+            r#"{"smartctl":{"exit_status":2,"messages":[{"string":"Device open failed"}]}}"#;
+(B[m         assert_eq!(
+             smartctl_command_error(command_error).as_deref(),
+             Some("Device open failed")
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:227:
+ }
+ 
+ fn collect_domain_scores(snapshot: &SystemSnapshot) -> Vec<HealthDomain> {
+[31m-    let disk_pct = ratio(snapshot.disk_root_used_bytes, snapshot.disk_root_total_bytes) * 100.0;
+(B[m[32m+    let disk_pct = ratio(
+(B[m[32m+        snapshot.disk_root_used_bytes,
+(B[m[32m+        snapshot.disk_root_total_bytes,
+(B[m[32m+    ) * 100.0;
+(B[m     let storage_score = if snapshot.disk_root_total_bytes == 0 {
+         None
+     } else if disk_pct >= 95.0 {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:257:
+         (None, None) => None,
+         (system, user) => Some(system.unwrap_or(0).saturating_add(user.unwrap_or(0))),
+     };
+[31m-    let reliability_score = failed_total.map(|count| 100u8.saturating_sub((count.min(5) * 16) as u8));
+(B[m[31m-    let security_score = snapshot.firewall_active.map(|active| if active { 100 } else { 72 });
+(B[m[32m+    let reliability_score =
+(B[m[32m+        failed_total.map(|count| 100u8.saturating_sub((count.min(5) * 16) as u8));
+(B[m[32m+    let security_score = snapshot
+(B[m[32m+        .firewall_active
+(B[m[32m+        .map(|active| if active { 100 } else { 72 });
+(B[m 
+     let network_score = quick_network_score();
+     let package_score = quick_package_score();
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:295:
+     });
+ 
+     vec![
+[31m-        domain("Storage", storage_score, format!("Root filesystem {disk_pct:.0}% used")),
+(B[m[31m-        domain("Performance", performance_score, format!("RAM non-available {ram_pct:.0}%")),
+(B[m         domain(
+[32m+            "Storage",
+(B[m[32m+            storage_score,
+(B[m[32m+            format!("Root filesystem {disk_pct:.0}% used"),
+(B[m[32m+        ),
+(B[m[32m+        domain(
+(B[m[32m+            "Performance",
+(B[m[32m+            performance_score,
+(B[m[32m+            format!("RAM non-available {ram_pct:.0}%"),
+(B[m[32m+        ),
+(B[m[32m+        domain(
+(B[m             "Reliability",
+             reliability_score,
+             failed_total
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:309:
+             security_score,
+             match snapshot.firewall_active {
+                 Some(true) => "UFW active; other firewall layers are not inferred".to_string(),
+[31m-                Some(false) => "UFW inactive; nftables/firewalld/upstream policy may still exist".to_string(),
+(B[m[32m+                Some(false) => {
+(B[m[32m+                    "UFW inactive; nftables/firewalld/upstream policy may still exist".to_string()
+(B[m[32m+                }
+(B[m                 None => "Firewall state unavailable".to_string(),
+             },
+         ),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:385:
+     if !output.status.success() {
+         return None;
+     }
+[31m-    match String::from_utf8_lossy(&output.stdout).trim().to_lowercase().as_str() {
+(B[m[32m+    match String::from_utf8_lossy(&output.stdout)
+(B[m[32m+        .trim()
+(B[m[32m+        .to_lowercase()
+(B[m[32m+        .as_str()
+(B[m[32m+    {
+(B[m         "full" => Some(100),
+         "limited" => Some(72),
+         "portal" => Some(65),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:437:
+     let mut penalty = 0u16;
+     let mut signals = Vec::new();
+ 
+[31m-    let disk_pct = ratio(snapshot.disk_root_used_bytes, snapshot.disk_root_total_bytes);
+(B[m[32m+    let disk_pct = ratio(
+(B[m[32m+        snapshot.disk_root_used_bytes,
+(B[m[32m+        snapshot.disk_root_total_bytes,
+(B[m[32m+    );
+(B[m     let (disk_state, disk_penalty) = if disk_pct >= 0.95 {
+         (SignalState::Critical, 30)
+     } else if disk_pct >= 0.90 {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:475:
+     penalty += ram_penalty;
+     signals.push(HealthSignal {
+         title: "Memory pressure".to_string(),
+[31m-        detail: format!(
+(B[m[31m-            "{:.0}% of RAM is currently non-available",
+(B[m[31m-            ram_pct * 100.0
+(B[m[31m-        ),
+(B[m[32m+        detail: format!("{:.0}% of RAM is currently non-available", ram_pct * 100.0),
+(B[m         state: ram_state,
+     });
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:549:
+             state: SignalState::Good,
+         }),
+         Some(count) => {
+[31m-            let p = (count as u16)
+(B[m[31m-                .saturating_mul(max_penalty_per_unit)
+(B[m[31m-                .min(20);
+(B[m[32m+            let p = (count as u16).saturating_mul(max_penalty_per_unit).min(20);
+(B[m             *penalty = (*penalty).saturating_add(p);
+             signals.push(HealthSignal {
+                 title: title.to_string(),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:614:
+     if previous.kernel_version != current.kernel_version {
+         changes.push(SystemChange {
+             title: "Kernel changed".to_string(),
+[31m-            detail: format!(
+(B[m[31m-                "{} → {}",
+(B[m[31m-                previous.kernel_version, current.kernel_version
+(B[m[31m-            ),
+(B[m[32m+            detail: format!("{} → {}", previous.kernel_version, current.kernel_version),
+(B[m             tone: ChangeTone::Neutral,
+         });
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:739:
+ ) {
+     let should_record = history
+         .last()
+[31m-        .map(|last| current.timestamp_unix.saturating_sub(last.timestamp_unix) >= SYSTEM_SNAPSHOT_INTERVAL_SECS)
+(B[m[32m+        .map(|last| {
+(B[m[32m+            current.timestamp_unix.saturating_sub(last.timestamp_unix)
+(B[m[32m+                >= SYSTEM_SNAPSHOT_INTERVAL_SECS
+(B[m[32m+        })
+(B[m         .unwrap_or(true);
+ 
+     if !should_record {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/health.rs:977:
+         let mut after = before.clone();
+         after.kernel_version = "6.1-test".to_string();
+         let changes = compare_system(&before, &after);
+[31m-        assert!(changes.iter().any(|change| change.title == "Kernel changed"));
+(B[m[32m+        assert!(changes
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|change| change.title == "Kernel changed"));
+(B[m     }
+ }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/lib.rs:1:
+ pub mod app;
+[32m+pub mod automation_engine;
+(B[m pub mod battery;
+ pub mod boot;
+ pub mod cleanup;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/lib.rs:5:
+[32m+pub mod cleanup_policy;
+(B[m pub mod container_analyzer;
+[32m+pub mod deep_network;
+(B[m pub mod executor;
+[32m+pub mod filesystem_doctor;
+(B[m pub mod format;
+[32m+pub mod gnome_integration;
+(B[m[32m+pub mod hardware;
+(B[m pub mod health;
+[31m-pub mod filesystem_doctor;
+(B[m[31m-pub mod maintenance_intelligence;
+(B[m[31m-pub mod service_doctor;
+(B[m[31m-pub mod thermal_doctor;
+(B[m pub mod history;
+[31m-pub mod hardware;
+(B[m[32m+pub mod maintenance_intelligence;
+(B[m pub mod model;
+[32m+pub mod modules;
+(B[m pub mod network_doctor;
+[32m+pub mod notification_center;
+(B[m pub mod package_doctor;
+ pub mod process_intelligence;
+[31m-pub mod quarantine;
+(B[m[31m-pub mod modules;
+(B[m pub mod providers;
+[32m+pub mod quarantine;
+(B[m pub mod scan;
+[32m+pub mod service_doctor;
+(B[m pub mod settings;
+ pub mod storage;
+[32m+pub mod storage_intelligence;
+(B[m pub mod storage_runway;
+[31m-pub mod timeline;
+(B[m pub mod system_info;
+[31m-pub mod automation_engine;
+(B[m[31m-pub mod cleanup_policy;
+(B[m[31m-pub mod notification_center;
+(B[m[31m-pub mod storage_intelligence;
+(B[m[31m-pub mod deep_network;
+(B[m[31m-pub mod gnome_integration;
+(B[m[32m+pub mod thermal_doctor;
+(B[m[32m+pub mod timeline;
+(B[m 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/maintenance_intelligence.rs:71:
+     let boot = boot::collect_report();
+     let storage = storage_runway::collect_report(home);
+     let quarantine_bytes = quarantine::total_protected_bytes(home);
+[31m-    let recent_timeline_events = timeline::load(home).map(|events| events.len().min(20)).unwrap_or(0);
+(B[m[32m+    let recent_timeline_events = timeline::load(home)
+(B[m[32m+        .map(|events| events.len().min(20))
+(B[m[32m+        .unwrap_or(0);
+(B[m 
+     let mut recommendations = Vec::new();
+     storage_recommendations(&storage, &mut recommendations);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/maintenance_intelligence.rs:241:
+             });
+         }
+     }
+[31m-    if packages
+(B[m[31m-        .signals
+(B[m[31m-        .iter()
+(B[m[31m-        .any(|signal| signal.state == package_doctor::DiagnosticState::Review && signal.title.contains("dependency"))
+(B[m[31m-    {
+(B[m[32m+    if packages.signals.iter().any(|signal| {
+(B[m[32m+        signal.state == package_doctor::DiagnosticState::Review
+(B[m[32m+            && signal.title.contains("dependency")
+(B[m[32m+    }) {
+(B[m         out.push(Recommendation {
+             priority: RecommendationPriority::High,
+             area: "Packages".to_string(),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/maintenance_intelligence.rs:292:
+             area: "Network".to_string(),
+             title: "No default route detected".to_string(),
+             why: "Neither IPv4 nor IPv6 routing exposes a default route.".to_string(),
+[31m-            suggested_action: "Check the active connection, DHCP/static route configuration, or VPN policy.".to_string(),
+(B[m[32m+            suggested_action:
+(B[m[32m+                "Check the active connection, DHCP/static route configuration, or VPN policy."
+(B[m[32m+                    .to_string(),
+(B[m             reversible: true,
+             requires_privilege: false,
+         });
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/maintenance_intelligence.rs:299:
+     }
+[31m-    if network.interface_health.iter().any(|interface| interface.error_total() > 100) {
+(B[m[32m+    if network
+(B[m[32m+        .interface_health
+(B[m[32m+        .iter()
+(B[m[32m+        .any(|interface| interface.error_total() > 100)
+(B[m[32m+    {
+(B[m         out.push(Recommendation {
+             priority: RecommendationPriority::Medium,
+             area: "Network".to_string(),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/maintenance_intelligence.rs:382:
+     }
+ }
+ 
+[31m-fn battery_recommendations(
+(B[m[31m-    batteries: &battery::BatteryLabReport,
+(B[m[31m-    out: &mut Vec<Recommendation>,
+(B[m[31m-) {
+(B[m[32m+fn battery_recommendations(batteries: &battery::BatteryLabReport, out: &mut Vec<Recommendation>) {
+(B[m     for battery in &batteries.batteries {
+         if let Some(health) = battery.health_percent {
+             if health < 70.0 {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/maintenance_intelligence.rs:402:
+         }
+     }
+     for trend in &batteries.trends {
+[31m-        if trend.span_hours >= 72.0 && trend.health_delta_percent.is_some_and(|delta| delta <= -3.0) {
+(B[m[32m+        if trend.span_hours >= 72.0
+(B[m[32m+            && trend
+(B[m[32m+                .health_delta_percent
+(B[m[32m+                .is_some_and(|delta| delta <= -3.0)
+(B[m[32m+        {
+(B[m             out.push(Recommendation {
+                 priority: RecommendationPriority::Low,
+                 area: "Battery".to_string(),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/automation.rs:58:
+     let weekday = gtk::DropDown::from_strings(&["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+     let hour = gtk::SpinButton::with_range(0.0, 23.0, 1.0);
+     let minute = gtk::SpinButton::with_range(0.0, 59.0, 5.0);
+[31m-    let mode = gtk::DropDown::from_strings(&[
+(B[m[31m-        "Scan only",
+(B[m[31m-        "Scan + notify",
+(B[m[31m-        "Scan + safe quarantine",
+(B[m[31m-    ]);
+(B[m[32m+    let mode =
+(B[m[32m+        gtk::DropDown::from_strings(&["Scan only", "Scan + notify", "Scan + safe quarantine"]);
+(B[m     row.append(&field("Cadence", &cadence));
+     row.append(&field("Weekday", &weekday));
+     row.append(&field("Hour", &hour));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/automation.rs:104:
+         move || {
+             let state = automation_engine::status(&home);
+             let next = state.next_run.as_deref().unwrap_or("not scheduled");
+[31m-            let last = state.last_trigger.as_deref().unwrap_or("no recorded trigger");
+(B[m[32m+            let last = state
+(B[m[32m+                .last_trigger
+(B[m[32m+                .as_deref()
+(B[m[32m+                .unwrap_or("no recorded trigger");
+(B[m             status.set_text(&format!(
+                 "{} {}\nNext: {next}\nLast trigger: {last}",
+[31m-                if state.enabled && state.active { "ACTIVE •" } else { "INACTIVE •" },
+(B[m[32m+                if state.enabled && state.active {
+(B[m[32m+                    "ACTIVE •"
+(B[m[32m+                } else {
+(B[m[32m+                    "INACTIVE •"
+(B[m[32m+                },
+(B[m                 state.detail
+             ));
+             run_now.set_sensitive(state.enabled && state.timer_path.is_some());
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/automation.rs:152:
+         let refresh_status = refresh_status.clone();
+         run_now.connect_clicked(move |_| match automation_engine::run_now() {
+             Ok(()) => {
+[31m-                status.set_text("Manual maintenance run started through the installed user systemd service.");
+(B[m[32m+                status.set_text(
+(B[m[32m+                    "Manual maintenance run started through the installed user systemd service.",
+(B[m[32m+                );
+(B[m                 refresh_status();
+             }
+             Err(err) => status.set_text(&format!("Could not start maintenance now: {err}")),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/automation.rs:266:
+             }
+             let events = notification_center::load(&home).unwrap_or_default();
+             if events.is_empty() {
+[31m-                let label = gtk::Label::new(Some("No LinuxCare notifications have been recorded yet."));
+(B[m[32m+                let label =
+(B[m[32m+                    gtk::Label::new(Some("No LinuxCare notifications have been recorded yet."));
+(B[m                 label.set_xalign(0.0);
+                 label.add_css_class("dim-label");
+                 list.append(&label);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/containers.rs:65:
+                 button_ui.set_sensitive(true);
+                 button_ui.set_label("Refresh Containers");
+ 
+[31m-                let installed = report.engines.iter().filter(|engine| engine.installed).count();
+(B[m[31m-                let reachable = report.engines.iter().filter(|engine| engine.reachable).count();
+(B[m[32m+                let installed = report
+(B[m[32m+                    .engines
+(B[m[32m+                    .iter()
+(B[m[32m+                    .filter(|engine| engine.installed)
+(B[m[32m+                    .count();
+(B[m[32m+                let reachable = report
+(B[m[32m+                    .engines
+(B[m[32m+                    .iter()
+(B[m[32m+                    .filter(|engine| engine.reachable)
+(B[m[32m+                    .count();
+(B[m                 let reclaimable: u64 = report
+                     .engines
+                     .iter()
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/containers.rs:147:
+     title.set_xalign(0.0);
+     title.add_css_class("title-3");
+     let version = engine.version.as_deref().unwrap_or("version unknown");
+[31m-    let root = engine.storage_root.as_deref().unwrap_or("storage root unknown");
+(B[m[32m+    let root = engine
+(B[m[32m+        .storage_root
+(B[m[32m+        .as_deref()
+(B[m[32m+        .unwrap_or("storage root unknown");
+(B[m     let detail = gtk::Label::new(Some(&format!("{version} • {root}")));
+     detail.set_xalign(0.0);
+     detail.set_wrap(true);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/containers.rs:187:
+ 
+     let metrics = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+     metrics.set_homogeneous(true);
+[31m-    metrics.append(&metric("REPORTED SIZE", &format::bytes(engine.total_size_bytes())));
+(B[m[32m+    metrics.append(&metric(
+(B[m[32m+        "REPORTED SIZE",
+(B[m[32m+        &format::bytes(engine.total_size_bytes()),
+(B[m[32m+    ));
+(B[m     metrics.append(&metric(
+         "RECLAIMABLE EST.",
+         &format::bytes(engine.reclaimable_bytes()),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/filesystem.rs:41:
+             while let Some(child) = container.first_child() {
+                 container.remove(&child);
+             }
+[31m-            let loading = gtk::Label::new(Some("Reading mountinfo, statvfs and current-boot kernel errors…"));
+(B[m[32m+            let loading = gtk::Label::new(Some(
+(B[m[32m+                "Reading mountinfo, statvfs and current-boot kernel errors…",
+(B[m[32m+            ));
+(B[m             loading.set_xalign(0.0);
+             loading.set_wrap(true);
+             loading.add_css_class("dim-label");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/filesystem.rs:168:
+     let detail = gtk::Label::new(Some(&format!(
+         "Btrfs mounts: {} • Snapper: {}{} • Timeshift: {} • snapshot directories: {}",
+         snapshot.btrfs_mounts.len(),
+[31m-        if snapshot.snapper_available { "detected" } else { "not detected" },
+(B[m[32m+        if snapshot.snapper_available {
+(B[m[32m+            "detected"
+(B[m[32m+        } else {
+(B[m[32m+            "not detected"
+(B[m[32m+        },
+(B[m         snapshot
+             .snapper_snapshot_count
+             .map(|count| format!(" ({count} listed)"))
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/filesystem.rs:175:
+             .unwrap_or_default(),
+[31m-        if snapshot.timeshift_detected { "detected" } else { "not detected" },
+(B[m[32m+        if snapshot.timeshift_detected {
+(B[m[32m+            "detected"
+(B[m[32m+        } else {
+(B[m[32m+            "not detected"
+(B[m[32m+        },
+(B[m         snapshot.snapshot_directories.len()
+     )));
+     detail.set_xalign(0.0);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:206:
+ 
+     devices
+         .iter()
+[31m-        .map(|device| match client.read_storage_health_json(&device.name) {
+(B[m[31m-            Ok(json) => serde_json::from_str::<StorageHealthReading>(&json)
+(B[m[31m-                .map_err(|error| (device.name.clone(), format!("Invalid helper reply: {error}"))),
+(B[m[31m-            Err(error) => Err((device.name.clone(), error.to_string())),
+(B[m[31m-        })
+(B[m[32m+        .map(
+(B[m[32m+            |device| match client.read_storage_health_json(&device.name) {
+(B[m[32m+                Ok(json) => serde_json::from_str::<StorageHealthReading>(&json).map_err(|error| {
+(B[m[32m+                    (
+(B[m[32m+                        device.name.clone(),
+(B[m[32m+                        format!("Invalid helper reply: {error}"),
+(B[m[32m+                    )
+(B[m[32m+                }),
+(B[m[32m+                Err(error) => Err((device.name.clone(), error.to_string())),
+(B[m[32m+            },
+(B[m[32m+        )
+(B[m         .collect()
+ }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:254:
+     graphics.add_css_class("finding-card");
+     graphics.append(&section_title("Graphics", "video-display-symbolic"));
+     if report.gpus.is_empty() {
+[31m-        graphics.append(&dim_label("No DRM GPU inventory was exposed by the kernel."));
+(B[m[32m+        graphics.append(&dim_label(
+(B[m[32m+            "No DRM GPU inventory was exposed by the kernel.",
+(B[m[32m+        ));
+(B[m     } else {
+         for gpu in report.gpus {
+             graphics.append(&kv_row(
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:267:
+ 
+     let storage = gtk::Box::new(gtk::Orientation::Vertical, 8);
+     storage.add_css_class("finding-card");
+[31m-    storage.append(&section_title("Physical Storage", "drive-harddisk-symbolic"));
+(B[m[32m+    storage.append(&section_title(
+(B[m[32m+        "Physical Storage",
+(B[m[32m+        "drive-harddisk-symbolic",
+(B[m[32m+    ));
+(B[m     if report.storage.is_empty() {
+[31m-        storage.append(&dim_label("No physical block devices were detected in /sys/block."));
+(B[m[32m+        storage.append(&dim_label(
+(B[m[32m+            "No physical block devices were detected in /sys/block.",
+(B[m[32m+        ));
+(B[m     } else {
+         for device in report.storage {
+             let kind = match device.rotational {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:277:
+                 Some(false) => "Solid-state / non-rotational",
+                 None => "Media type unknown",
+             };
+[31m-            let removable = if device.removable { " • Removable" } else { "" };
+(B[m[32m+            let removable = if device.removable {
+(B[m[32m+                " • Removable"
+(B[m[32m+            } else {
+(B[m[32m+                ""
+(B[m[32m+            };
+(B[m             storage.append(&kv_row(
+                 &format!("/dev/{}", device.name),
+                 &format!(
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:298:
+     thermals.add_css_class("finding-card");
+     thermals.append(&section_title("Thermal Sensors", "temperature-symbolic"));
+     if report.sensors.is_empty() {
+[31m-        thermals.append(&dim_label("No readable hwmon temperature sensors were found."));
+(B[m[32m+        thermals.append(&dim_label(
+(B[m[32m+            "No readable hwmon temperature sensors were found.",
+(B[m[32m+        ));
+(B[m     } else {
+         for sensor in report.sensors {
+             thermals.append(&kv_row(
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:315:
+     card.add_css_class("finding-card");
+ 
+     let header = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+[31m-    let title = gtk::Label::new(Some(&format!("/dev/{} · {}", reading.device, reading.protocol)));
+(B[m[32m+    let title = gtk::Label::new(Some(&format!(
+(B[m[32m+        "/dev/{} · {}",
+(B[m[32m+        reading.device, reading.protocol
+(B[m[32m+    )));
+(B[m     title.set_xalign(0.0);
+     title.set_hexpand(true);
+     title.add_css_class("heading");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:340:
+         ));
+     }
+     if let Some(warning) = reading.critical_warning {
+[31m-        card.append(&kv_row("NVMe critical warning", &format!("0x{warning:02x}")));
+(B[m[32m+        card.append(&kv_row(
+(B[m[32m+            "NVMe critical warning",
+(B[m[32m+            &format!("0x{warning:02x}"),
+(B[m[32m+        ));
+(B[m     }
+     if let Some(errors) = reading.media_errors {
+         card.append(&kv_row("NVMe media/data errors", &errors.to_string()));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/hardware.rs:435:
+ 
+ fn message_card(title: &str, detail: &str, warning: bool) -> gtk::Widget {
+     let card = gtk::Box::new(gtk::Orientation::Vertical, 4);
+[31m-    card.add_css_class(if warning { "warning-card" } else { "finding-card" });
+(B[m[32m+    card.add_css_class(if warning {
+(B[m[32m+        "warning-card"
+(B[m[32m+    } else {
+(B[m[32m+        "finding-card"
+(B[m[32m+    });
+(B[m     let heading = gtk::Label::new(Some(title));
+     heading.set_xalign(0.0);
+     heading.add_css_class("heading");
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/mod.rs:2:
+ pub mod automation;
+ pub mod battery_lab;
+ pub mod containers;
+[32m+pub mod filesystem;
+(B[m pub mod hardware;
+[32m+pub mod maintenance;
+(B[m pub mod network;
+ pub mod packages;
+ pub mod privacy;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/mod.rs:10:
+ pub mod security;
+ pub mod services;
+ pub mod startup;
+[31m-pub mod vitals;
+(B[m[31m-pub mod filesystem;
+(B[m[31m-pub mod maintenance;
+(B[m pub mod thermal;
+[32m+pub mod vitals;
+(B[m 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:35:
+     let container = gtk::Box::new(gtk::Orientation::Vertical, 12);
+     page.append(&container);
+ 
+[31m-    let render_local = make_renderer(container.clone(), refresh_btn.clone(), probe_btn.clone(), false);
+(B[m[31m-    let render_probe = make_renderer(container.clone(), refresh_btn.clone(), probe_btn.clone(), true);
+(B[m[32m+    let render_local = make_renderer(
+(B[m[32m+        container.clone(),
+(B[m[32m+        refresh_btn.clone(),
+(B[m[32m+        probe_btn.clone(),
+(B[m[32m+        false,
+(B[m[32m+    );
+(B[m[32m+    let render_probe = make_renderer(
+(B[m[32m+        container.clone(),
+(B[m[32m+        refresh_btn.clone(),
+(B[m[32m+        probe_btn.clone(),
+(B[m[32m+        true,
+(B[m[32m+    );
+(B[m 
+     let local_click = render_local.clone();
+     refresh_btn.connect_clicked(move |_| local_click());
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:62:
+     move || {
+         refresh_btn.set_sensitive(false);
+         probe_btn.set_sensitive(false);
+[31m-        refresh_btn.set_label(if active_probe { "Probing…" } else { "Analyzing…" });
+(B[m[32m+        refresh_btn.set_label(if active_probe {
+(B[m[32m+            "Probing…"
+(B[m[32m+        } else {
+(B[m[32m+            "Analyzing…"
+(B[m[32m+        });
+(B[m         while let Some(child) = container.first_child() {
+             container.remove(&child);
+         }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:159:
+     title.set_xalign(0.0);
+     title.add_css_class("title-3");
+     let connectivity = crate::network_doctor::connectivity_label(report.connectivity.as_deref());
+[31m-    let ipv4 = report.default_routes.iter().filter(|route| route.family == "IPv4").count();
+(B[m[31m-    let ipv6 = report.default_routes.iter().filter(|route| route.family == "IPv6").count();
+(B[m[32m+    let ipv4 = report
+(B[m[32m+        .default_routes
+(B[m[32m+        .iter()
+(B[m[32m+        .filter(|route| route.family == "IPv4")
+(B[m[32m+        .count();
+(B[m[32m+    let ipv6 = report
+(B[m[32m+        .default_routes
+(B[m[32m+        .iter()
+(B[m[32m+        .filter(|route| route.family == "IPv6")
+(B[m[32m+        .count();
+(B[m     let detail = gtk::Label::new(Some(&format!(
+         "{connectivity} • IPv4 default routes {ipv4} • IPv6 default routes {ipv6} • {} DNS server(s)",
+         report.dns_servers.len()
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:252:
+     title.add_css_class("title-3");
+     card.append(&title);
+     if devices.is_empty() {
+[31m-        card.append(&dim_label("NetworkManager interface inventory is unavailable."));
+(B[m[32m+        card.append(&dim_label(
+(B[m[32m+            "NetworkManager interface inventory is unavailable.",
+(B[m[32m+        ));
+(B[m     } else {
+         for device in devices {
+             let connection = if device.connection.is_empty() || device.connection == "--" {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:277:
+     title.add_css_class("title-3");
+     card.append(&title);
+     if report.interface_health.is_empty() {
+[31m-        card.append(&dim_label("No relevant /sys/class/net counters were available."));
+(B[m[32m+        card.append(&dim_label(
+(B[m[32m+            "No relevant /sys/class/net counters were available.",
+(B[m[32m+        ));
+(B[m     } else {
+         for interface in &report.interface_health {
+             let detail = format!(
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:335:
+     metrics.append(&metric("UDP", &report.udp_sockets.to_string()));
+     metrics.append(&metric(
+         "PID VISIBLE",
+[31m-        &format!("{}/{}", report.process_visible_sockets, report.total_sockets),
+(B[m[32m+        &format!(
+(B[m[32m+            "{}/{}",
+(B[m[32m+            report.process_visible_sockets, report.total_sockets
+(B[m[32m+        ),
+(B[m     ));
+     card.append(&metrics);
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:375:
+     card.append(&title);
+     let metrics = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+     metrics.set_homogeneous(true);
+[31m-    metrics.append(&metric("NETWORK LISTENERS", &report.network_listeners.to_string()));
+(B[m[31m-    metrics.append(&metric("LOCAL LISTENERS", &report.local_listeners.to_string()));
+(B[m     metrics.append(&metric(
+[32m+        "NETWORK LISTENERS",
+(B[m[32m+        &report.network_listeners.to_string(),
+(B[m[32m+    ));
+(B[m[32m+    metrics.append(&metric(
+(B[m[32m+        "LOCAL LISTENERS",
+(B[m[32m+        &report.local_listeners.to_string(),
+(B[m[32m+    ));
+(B[m[32m+    metrics.append(&metric(
+(B[m         "UFW",
+         match report.firewall_active {
+             Some(true) => "Active",
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/network.rs:393:
+ }
+ 
+ fn optional_u64(value: Option<u64>) -> String {
+[31m-    value.map(|value| value.to_string()).unwrap_or_else(|| "?".to_string())
+(B[m[32m+    value
+(B[m[32m+        .map(|value| value.to_string())
+(B[m[32m+        .unwrap_or_else(|| "?".to_string())
+(B[m }
+ 
+ fn metric(title: &str, value: &str) -> gtk::Widget {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/packages.rs:152:
+ 
+     let badge = gtk::Label::new(Some(&report.overall_label.to_uppercase()));
+     badge.add_css_class("risk-badge");
+[31m-    badge.add_css_class(if report
+(B[m[31m-        .signals
+(B[m[31m-        .iter()
+(B[m[31m-        .any(|signal| signal.state == DiagnosticState::Review)
+(B[m[31m-    {
+(B[m[31m-        "risk-review"
+(B[m[31m-    } else if report
+(B[m[31m-        .signals
+(B[m[31m-        .iter()
+(B[m[31m-        .any(|signal| signal.state == DiagnosticState::Unknown)
+(B[m[31m-    {
+(B[m[31m-        "health-neutral"
+(B[m[31m-    } else {
+(B[m[31m-        "risk-safe"
+(B[m[31m-    });
+(B[m[32m+    badge.add_css_class(
+(B[m[32m+        if report
+(B[m[32m+            .signals
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|signal| signal.state == DiagnosticState::Review)
+(B[m[32m+        {
+(B[m[32m+            "risk-review"
+(B[m[32m+        } else if report
+(B[m[32m+            .signals
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|signal| signal.state == DiagnosticState::Unknown)
+(B[m[32m+        {
+(B[m[32m+            "health-neutral"
+(B[m[32m+        } else {
+(B[m[32m+            "risk-safe"
+(B[m[32m+        },
+(B[m[32m+    );
+(B[m     badge.set_valign(gtk::Align::Center);
+     header.append(&badge);
+     card.append(&header);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/packages.rs:181:
+         "AUTOREMOVE",
+         &report.autoremove_candidates.len().to_string(),
+     ));
+[32m+    metrics.append(&metric_box("HELD", &report.held_packages.len().to_string()));
+(B[m     metrics.append(&metric_box(
+[31m-        "HELD",
+(B[m[31m-        &report.held_packages.len().to_string(),
+(B[m[31m-    ));
+(B[m[31m-    metrics.append(&metric_box(
+(B[m         "APT SOURCES",
+         &report.active_source_entries.to_string(),
+     ));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/packages.rs:408:
+         glib::timeout_add_local(Duration::from_millis(100), move || match rx.try_recv() {
+             Ok(Ok(recovered)) => {
+                 btn_c.set_label("Cleaned");
+[31m-                apt_sub_cc.set_text(&format!("APT cache • Recovered {}", format::bytes(recovered)));
+(B[m[32m+                apt_sub_cc.set_text(&format!(
+(B[m[32m+                    "APT cache • Recovered {}",
+(B[m[32m+                    format::bytes(recovered)
+(B[m[32m+                ));
+(B[m                 glib::ControlFlow::Break
+             }
+             Ok(Err(error)) => {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/packages.rs:474:
+             Ok(Ok(recovered)) => {
+                 btn_c.set_label("Done");
+                 let message = if recovered > 0 {
+[31m-                    format!("Autoremove complete • Recovered {}", format::bytes(recovered))
+(B[m[32m+                    format!(
+(B[m[32m+                        "Autoremove complete • Recovered {}",
+(B[m[32m+                        format::bytes(recovered)
+(B[m[32m+                    )
+(B[m                 } else {
+                     "Autoremove complete. APT did not provide a reliable reclaimed-size total."
+                         .to_string()
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/processes.rs:1:
+ use crate::process_intelligence::{
+[31m-    anomaly_age, AnomalySeverity, HistoricalVitalsSummary, ProcessAnomaly, ProcessIntelligenceReport,
+(B[m[31m-    ProcessMetric, ProcessSampler,
+(B[m[32m+    anomaly_age, AnomalySeverity, HistoricalVitalsSummary, ProcessAnomaly,
+(B[m[32m+    ProcessIntelligenceReport, ProcessMetric, ProcessSampler,
+(B[m };
+ use gtk::prelude::*;
+ use std::{cell::RefCell, path::PathBuf, rc::Rc, time::Duration};
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/processes.rs:140:
+     report: &ProcessIntelligenceReport,
+ ) {
+     baseline_label.set_text(&report.baseline_detail);
+[31m-    for class in ["risk-safe", "risk-review", "risk-dangerous", "health-neutral"] {
+(B[m[32m+    for class in [
+(B[m[32m+        "risk-safe",
+(B[m[32m+        "risk-review",
+(B[m[32m+        "risk-dangerous",
+(B[m[32m+        "health-neutral",
+(B[m[32m+    ] {
+(B[m         status.remove_css_class(class);
+     }
+     if !report.baseline_ready {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/processes.rs:186:
+     container.append(&metric_card(
+         "CPU",
+         &format!("{:.0}% now", current.cpu_pct),
+[31m-        &format!("{:.0}% avg • {:.0}% peak", summary.cpu_avg_pct, summary.cpu_peak_pct),
+(B[m[32m+        &format!(
+(B[m[32m+            "{:.0}% avg • {:.0}% peak",
+(B[m[32m+            summary.cpu_avg_pct, summary.cpu_peak_pct
+(B[m[32m+        ),
+(B[m     ));
+     container.append(&metric_card(
+         "RAM",
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/processes.rs:193:
+         &format!("{:.0}% now", current.ram_pct),
+[31m-        &format!("{:.0}% avg • {:.0}% peak", summary.ram_avg_pct, summary.ram_peak_pct),
+(B[m[32m+        &format!(
+(B[m[32m+            "{:.0}% avg • {:.0}% peak",
+(B[m[32m+            summary.ram_avg_pct, summary.ram_peak_pct
+(B[m[32m+        ),
+(B[m     ));
+     let network_now = current
+         .network_rx_bytes_per_sec
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/processes.rs:282:
+     name.set_xalign(0.0);
+     name.add_css_class("heading");
+     let io = process.io_bytes_per_sec();
+[31m-    let owner = if process.owned_by_user { "user" } else { "system/other" };
+(B[m[32m+    let owner = if process.owned_by_user {
+(B[m[32m+        "user"
+(B[m[32m+    } else {
+(B[m[32m+        "system/other"
+(B[m[32m+    };
+(B[m     let detail = gtk::Label::new(Some(&format!(
+         "CPU {:.1}% • RAM {} • Disk {}/s • {owner}",
+         process.cpu_pct,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/security.rs:164:
+                     let addr_desc = if p.is_network_bound {
+                         format!("Bound beyond loopback at {} • Reachability still depends on firewall/router rules", p.bind_addr)
+                     } else {
+[31m-                        format!("Loopback-only ({}) • Not directly exposed on external interfaces", p.bind_addr)
+(B[m[32m+                        format!(
+(B[m[32m+                            "Loopback-only ({}) • Not directly exposed on external interfaces",
+(B[m[32m+                            p.bind_addr
+(B[m[32m+                        )
+(B[m                     };
+                     let desc_lbl = gtk::Label::new(Some(&addr_desc));
+                     desc_lbl.set_xalign(0.0);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/security.rs:172:
+                     info_box.append(&name_lbl);
+                     info_box.append(&desc_lbl);
+ 
+[31m-                    let badge = gtk::Label::new(Some(if p.is_network_bound { "NETWORK" } else { "LOCAL" }));
+(B[m[32m+                    let badge = gtk::Label::new(Some(if p.is_network_bound {
+(B[m[32m+                        "NETWORK"
+(B[m[32m+                    } else {
+(B[m[32m+                        "LOCAL"
+(B[m[32m+                    }));
+(B[m                     badge.add_css_class("risk-badge");
+[31m-                    badge.add_css_class(if p.is_network_bound { "risk-review" } else { "risk-safe" });
+(B[m[32m+                    badge.add_css_class(if p.is_network_bound {
+(B[m[32m+                        "risk-review"
+(B[m[32m+                    } else {
+(B[m[32m+                        "risk-safe"
+(B[m[32m+                    });
+(B[m                     badge.set_valign(gtk::Align::Center);
+ 
+                     row.append(&icon);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/security.rs:286:
+                 }
+                 if let Some(pid_start) = users_field.find("pid=") {
+                     let rest = &users_field[pid_start + 4..];
+[31m-                    let pid_end = rest.find(',').unwrap_or_else(|| rest.find(')').unwrap_or(rest.len()));
+(B[m[32m+                    let pid_end = rest
+(B[m[32m+                        .find(',')
+(B[m[32m+                        .unwrap_or_else(|| rest.find(')').unwrap_or(rest.len()));
+(B[m                     if let Ok(p) = rest[..pid_end].parse::<u32>() {
+                         pid = Some(p);
+                     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/services.rs:161:
+     top.append(&text);
+     let badge = gtk::Label::new(Some(&report.status_label.to_uppercase()));
+     badge.add_css_class("risk-badge");
+[31m-    badge.add_css_class(if !report.restarting_system.is_empty() || !report.restarting_user.is_empty() {
+(B[m[31m-        "risk-dangerous"
+(B[m[31m-    } else if !report.failed_system.is_empty() || !report.failed_user.is_empty() {
+(B[m[31m-        "risk-review"
+(B[m[31m-    } else if !report.system_scope_available || !report.user_scope_available {
+(B[m[31m-        "health-neutral"
+(B[m[31m-    } else {
+(B[m[31m-        "risk-safe"
+(B[m[31m-    });
+(B[m[32m+    badge.add_css_class(
+(B[m[32m+        if !report.restarting_system.is_empty() || !report.restarting_user.is_empty() {
+(B[m[32m+            "risk-dangerous"
+(B[m[32m+        } else if !report.failed_system.is_empty() || !report.failed_user.is_empty() {
+(B[m[32m+            "risk-review"
+(B[m[32m+        } else if !report.system_scope_available || !report.user_scope_available {
+(B[m[32m+            "health-neutral"
+(B[m[32m+        } else {
+(B[m[32m+            "risk-safe"
+(B[m[32m+        },
+(B[m[32m+    );
+(B[m     top.append(&badge);
+     card.append(&top);
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/services.rs:176:
+     let metrics = gtk::Box::new(gtk::Orientation::Horizontal, 10);
+     metrics.set_homogeneous(true);
+[31m-    metrics.append(&metric("FAILED SYSTEM", &report.failed_system.len().to_string()));
+(B[m[31m-    metrics.append(&metric("FAILED USER", &report.failed_user.len().to_string()));
+(B[m     metrics.append(&metric(
+[32m+        "FAILED SYSTEM",
+(B[m[32m+        &report.failed_system.len().to_string(),
+(B[m[32m+    ));
+(B[m[32m+    metrics.append(&metric(
+(B[m[32m+        "FAILED USER",
+(B[m[32m+        &report.failed_user.len().to_string(),
+(B[m[32m+    ));
+(B[m[32m+    metrics.append(&metric(
+(B[m         "RESTARTING",
+         &(report.restarting_system.len() + report.restarting_user.len()).to_string(),
+     ));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/services.rs:207:
+     ));
+     metrics2.append(&metric(
+         "SYSTEM SCOPE",
+[31m-        if report.system_scope_available { "Available" } else { "Unknown" },
+(B[m[32m+        if report.system_scope_available {
+(B[m[32m+            "Available"
+(B[m[32m+        } else {
+(B[m[32m+            "Unknown"
+(B[m[32m+        },
+(B[m     ));
+     metrics2.append(&metric(
+         "USER SCOPE",
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/services.rs:214:
+[31m-        if report.user_scope_available { "Available" } else { "Unknown" },
+(B[m[32m+        if report.user_scope_available {
+(B[m[32m+            "Available"
+(B[m[32m+        } else {
+(B[m[32m+            "Unknown"
+(B[m[32m+        },
+(B[m     ));
+     card.append(&metrics2);
+     card.upcast()
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/thermal.rs:93:
+     title.add_css_class("title-2");
+     let badge = gtk::Label::new(Some(&report.status_label.to_uppercase()));
+     badge.add_css_class("risk-badge");
+[31m-    badge.add_css_class(if report
+(B[m[31m-        .sensors
+(B[m[31m-        .iter()
+(B[m[31m-        .any(|sensor| sensor.state == crate::thermal_doctor::ThermalState::Critical)
+(B[m[31m-    {
+(B[m[31m-        "risk-dangerous"
+(B[m[31m-    } else if report
+(B[m[31m-        .sensors
+(B[m[31m-        .iter()
+(B[m[31m-        .any(|sensor| sensor.state == crate::thermal_doctor::ThermalState::Review)
+(B[m[31m-        || report.cpu.throttle_events.unwrap_or(0) > 0
+(B[m[31m-    {
+(B[m[31m-        "risk-review"
+(B[m[31m-    } else {
+(B[m[31m-        "risk-safe"
+(B[m[31m-    });
+(B[m[32m+    badge.add_css_class(
+(B[m[32m+        if report
+(B[m[32m+            .sensors
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|sensor| sensor.state == crate::thermal_doctor::ThermalState::Critical)
+(B[m[32m+        {
+(B[m[32m+            "risk-dangerous"
+(B[m[32m+        } else if report
+(B[m[32m+            .sensors
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|sensor| sensor.state == crate::thermal_doctor::ThermalState::Review)
+(B[m[32m+            || report.cpu.throttle_events.unwrap_or(0) > 0
+(B[m[32m+        {
+(B[m[32m+            "risk-review"
+(B[m[32m+        } else {
+(B[m[32m+            "risk-safe"
+(B[m[32m+        },
+(B[m[32m+    );
+(B[m     top.append(&title);
+     top.append(&badge);
+     hero.append(&top);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:142:
+     cpu_bar_row.append(&cpu_pct_lbl);
+     cpu_card.append(&cpu_bar_row);
+ 
+[31m-    let cpu_wave = make_sparkline_wave(
+(B[m[31m-        cpu_history.clone(),
+(B[m[31m-        (0.20, 0.60, 1.0),
+(B[m[31m-        (0.65, 0.35, 1.0),
+(B[m[31m-    );
+(B[m[32m+    let cpu_wave = make_sparkline_wave(cpu_history.clone(), (0.20, 0.60, 1.0), (0.65, 0.35, 1.0));
+(B[m     cpu_card.append(&cpu_wave);
+     grid.append(&cpu_card);
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:277:
+     mem_bars_box.append(&swap_bar);
+     mem_card.append(&mem_bars_box);
+ 
+[31m-    let ram_wave = make_sparkline_wave(
+(B[m[31m-        ram_history.clone(),
+(B[m[31m-        (0.10, 0.80, 0.60),
+(B[m[31m-        (0.20, 0.85, 0.45),
+(B[m[31m-    );
+(B[m[32m+    let ram_wave = make_sparkline_wave(ram_history.clone(), (0.10, 0.80, 0.60), (0.20, 0.85, 0.45));
+(B[m     mem_card.append(&ram_wave);
+     grid.append(&mem_card);
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:378:
+     net_rates_box.append(&net_down_lbl);
+     net_rates_box.append(&net_up_lbl);
+ 
+[31m-    let net_wave = make_sparkline_wave(
+(B[m[31m-        net_history.clone(),
+(B[m[31m-        (0.95, 0.55, 0.15),
+(B[m[31m-        (0.98, 0.30, 0.40),
+(B[m[31m-    );
+(B[m[32m+    let net_wave = make_sparkline_wave(net_history.clone(), (0.95, 0.55, 0.15), (0.98, 0.30, 0.40));
+(B[m     net_card.append(&net_wave);
+ 
+     net_header.append(&net_icon);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:567:
+                                 .unwrap_or_default()
+                         ));
+                         toast_c.add_toast(adw::Toast::new(
+[31m-                            result.error.as_deref().unwrap_or("Storage benchmark unavailable"),
+(B[m[32m+                            result
+(B[m[32m+                                .error
+(B[m[32m+                                .as_deref()
+(B[m[32m+                                .unwrap_or("Storage benchmark unavailable"),
+(B[m                         ));
+                     }
+                 }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:1189:
+         health_pct: battery
+             .health_percent
+             .map(|value| value.min(100.0).round() as u8),
+[31m-        time_remaining_str: battery.time_remaining_minutes.map(|minutes| {
+(B[m[31m-            crate::battery::format_minutes(Some(minutes), &battery.status)
+(B[m[31m-        }),
+(B[m[32m+        time_remaining_str: battery
+(B[m[32m+            .time_remaining_minutes
+(B[m[32m+            .map(|minutes| crate::battery::format_minutes(Some(minutes), &battery.status)),
+(B[m     }
+ }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:1594:
+         }
+         file.sync_data()?;
+         let write_secs = write_started.elapsed().as_secs_f64();
+[31m-        let advise = unsafe {
+(B[m[31m-            libc::posix_fadvise(file.as_raw_fd(), 0, 0, libc::POSIX_FADV_DONTNEED)
+(B[m[31m-        };
+(B[m[32m+        let advise =
+(B[m[32m+            unsafe { libc::posix_fadvise(file.as_raw_fd(), 0, 0, libc::POSIX_FADV_DONTNEED) };
+(B[m         drop(file);
+         if advise != 0 {
+             return Err(std::io::Error::from_raw_os_error(advise));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:1603:
+         }
+ 
+         let mut file = std::fs::File::open(path)?;
+[31m-        let advise = unsafe {
+(B[m[31m-            libc::posix_fadvise(file.as_raw_fd(), 0, 0, libc::POSIX_FADV_SEQUENTIAL)
+(B[m[31m-        };
+(B[m[32m+        let advise =
+(B[m[32m+            unsafe { libc::posix_fadvise(file.as_raw_fd(), 0, 0, libc::POSIX_FADV_SEQUENTIAL) };
+(B[m         if advise != 0 {
+             return Err(std::io::Error::from_raw_os_error(advise));
+         }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:1645:
+     }
+ 
+     let filesystem = filesystem_type_for_path(&cache_dir);
+[31m-    if ["tmpfs", "ramfs", "overlay", "squashfs", "proc", "sysfs", "devtmpfs"]
+(B[m[31m-        .contains(&filesystem.as_str())
+(B[m[32m+    if [
+(B[m[32m+        "tmpfs", "ramfs", "overlay", "squashfs", "proc", "sysfs", "devtmpfs",
+(B[m[32m+    ]
+(B[m[32m+    .contains(&filesystem.as_str())
+(B[m     {
+         return DiskBenchmarkResult {
+             write_mib_s: None,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/modules/vitals.rs:1713:
+         }
+     }
+ }
+[31m-
+(B[m 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/network_doctor.rs:340:
+         .stdin(Stdio::null())
+         .output();
+     let elapsed = started.elapsed().as_secs_f64() * 1000.0;
+[31m-    let dns_resolution_ok = dns_output.as_ref().ok().map(|output| output.status.success());
+(B[m[32m+    let dns_resolution_ok = dns_output
+(B[m[32m+        .as_ref()
+(B[m[32m+        .ok()
+(B[m[32m+        .map(|output| output.status.success());
+(B[m     let dns_resolution_ms = dns_resolution_ok.filter(|ok| *ok).map(|_| elapsed);
+ 
+     ActiveProbeResult {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:53:
+ }
+ 
+ pub fn collect_report() -> PackageDoctorReport {
+[31m-    let apt_check = run_command(
+(B[m[31m-        "/usr/bin/apt-get",
+(B[m[31m-        &["-o", "Debug::NoLocking=1", "check"],
+(B[m[31m-    );
+(B[m[32m+    let apt_check = run_command("/usr/bin/apt-get", &["-o", "Debug::NoLocking=1", "check"]);
+(B[m     let dpkg_audit = run_command("/usr/bin/dpkg", &["--audit"]);
+     let held_result = command_lines("/usr/bin/apt-mark", &["showhold"]);
+[31m-    let autoremove_result = simulation_packages(
+(B[m[31m-        &["-o", "Debug::NoLocking=1", "-s", "autoremove"],
+(B[m[31m-        "Remv ",
+(B[m[31m-    );
+(B[m[31m-    let upgrades_result = simulation_packages(
+(B[m[31m-        &["-o", "Debug::NoLocking=1", "-s", "upgrade"],
+(B[m[31m-        "Inst ",
+(B[m[31m-    );
+(B[m[32m+    let autoremove_result =
+(B[m[32m+        simulation_packages(&["-o", "Debug::NoLocking=1", "-s", "autoremove"], "Remv ");
+(B[m[32m+    let upgrades_result =
+(B[m[32m+        simulation_packages(&["-o", "Debug::NoLocking=1", "-s", "upgrade"], "Inst ");
+(B[m     let source_entries = collect_active_source_entries();
+     let active_source_entries = source_entries.len();
+     let duplicate_source_entries = duplicate_entries(&source_entries);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:73:
+     let apt_metadata_age_days = apt_metadata_age_days();
+     let old_kernel_packages = installed_old_kernels();
+[31m-    let foreign_architectures = command_lines("/usr/bin/dpkg", &["--print-foreign-architectures"])
+(B[m[31m-        .unwrap_or_default();
+(B[m[32m+    let foreign_architectures =
+(B[m[32m+        command_lines("/usr/bin/dpkg", &["--print-foreign-architectures"]).unwrap_or_default();
+(B[m     let apt_cache_bytes = directory_bytes(Path::new("/var/cache/apt/archives"));
+ 
+     let mut signals = vec![apt_check_signal(apt_check), dpkg_audit_signal(dpkg_audit)];
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:291:
+     match result {
+         Some(result) if result.success => DiagnosticSignal {
+             title: "APT dependency health".to_string(),
+[31m-            detail: "apt-get check completed without reporting broken package dependencies.".to_string(),
+(B[m[32m+            detail: "apt-get check completed without reporting broken package dependencies."
+(B[m[32m+                .to_string(),
+(B[m             state: DiagnosticState::Good,
+         },
+         Some(result) => DiagnosticSignal {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:304:
+         },
+         None => DiagnosticSignal {
+             title: "APT dependency health".to_string(),
+[31m-            detail: "apt-get is unavailable, so dependency consistency could not be checked.".to_string(),
+(B[m[32m+            detail: "apt-get is unavailable, so dependency consistency could not be checked."
+(B[m[32m+                .to_string(),
+(B[m             state: DiagnosticState::Unknown,
+         },
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:314:
+     match result {
+         Some(result) if result.success && result.stdout.trim().is_empty() => DiagnosticSignal {
+             title: "dpkg audit".to_string(),
+[31m-            detail: "dpkg --audit reports no partially installed or inconsistent packages.".to_string(),
+(B[m[32m+            detail: "dpkg --audit reports no partially installed or inconsistent packages."
+(B[m[32m+                .to_string(),
+(B[m             state: DiagnosticState::Good,
+         },
+         Some(result) if result.success => DiagnosticSignal {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:335:
+         },
+         None => DiagnosticSignal {
+             title: "dpkg audit".to_string(),
+[31m-            detail: "dpkg is unavailable, so installed-package state could not be audited.".to_string(),
+(B[m[32m+            detail: "dpkg is unavailable, so installed-package state could not be audited."
+(B[m[32m+                .to_string(),
+(B[m             state: DiagnosticState::Unknown,
+         },
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:385:
+     let mut entries = Vec::new();
+     entries.extend(list_source_entries(Path::new("/etc/apt/sources.list")));
+     if let Ok(files) = fs::read_dir("/etc/apt/sources.list.d") {
+[31m-        let mut paths = files.flatten().map(|entry| entry.path()).collect::<Vec<_>>();
+(B[m[32m+        let mut paths = files
+(B[m[32m+            .flatten()
+(B[m[32m+            .map(|entry| entry.path())
+(B[m[32m+            .collect::<Vec<_>>();
+(B[m         paths.sort();
+         for path in paths {
+             match path.extension().and_then(|ext| ext.to_str()) {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:545:
+ }
+ 
+ fn preview_names(names: &[String], max: usize) -> String {
+[31m-    let mut preview = names.iter().take(max).cloned().collect::<Vec<_>>().join(", ");
+(B[m[32m+    let mut preview = names
+(B[m[32m+        .iter()
+(B[m[32m+        .take(max)
+(B[m[32m+        .cloned()
+(B[m[32m+        .collect::<Vec<_>>()
+(B[m[32m+        .join(", ");
+(B[m     if names.len() > max {
+         preview.push_str(&format!(" +{} more", names.len() - max));
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/package_doctor.rs:567:
+ 
+     #[test]
+     fn counts_only_enabled_deb822_stanzas() {
+[31m-        let root = std::env::temp_dir().join(format!(
+(B[m[31m-            "linuxcare-deb822-test-{}",
+(B[m[31m-            std::process::id()
+(B[m[31m-        ));
+(B[m[32m+        let root =
+(B[m[32m+            std::env::temp_dir().join(format!("linuxcare-deb822-test-{}", std::process::id()));
+(B[m         let _ = fs::remove_file(&root);
+         fs::write(
+             &root,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:156:
+         let now = now_unix();
+         let mut history = load_history(&home).unwrap_or_default();
+         trim_history(&mut history, now);
+[31m-        let last_persist_unix = history.last().map(|sample| sample.timestamp_unix).unwrap_or(0);
+(B[m[32m+        let last_persist_unix = history
+(B[m[32m+            .last()
+(B[m[32m+            .map(|sample| sample.timestamp_unix)
+(B[m[32m+            .unwrap_or(0);
+(B[m         Self {
+             home,
+             previous_processes: HashMap::new(),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:228:
+             });
+         }
+ 
+[31m-        processes.sort_by(|a, b| process_weight(b).partial_cmp(&process_weight(a)).unwrap_or(Ordering::Equal));
+(B[m[32m+        processes.sort_by(|a, b| {
+(B[m[32m+            process_weight(b)
+(B[m[32m+                .partial_cmp(&process_weight(a))
+(B[m[32m+                .unwrap_or(Ordering::Equal)
+(B[m[32m+        });
+(B[m         processes.truncate(40);
+ 
+         let memory = read_memory_pct();
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:335:
+         let Some((ticks, start_ticks, stat_name)) = read_process_stat(&proc_path) else {
+             continue;
+         };
+[31m-        let (name, process_uid, ram_bytes) = read_process_status(&proc_path)
+(B[m[31m-            .unwrap_or_else(|| (stat_name.clone(), None, 0));
+(B[m[32m+        let (name, process_uid, ram_bytes) =
+(B[m[32m+            read_process_status(&proc_path).unwrap_or_else(|| (stat_name.clone(), None, 0));
+(B[m         let io = read_process_io(&proc_path).unwrap_or_default();
+         result.insert(
+             ProcessKey { pid, start_ticks },
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:541:
+             let major = fields.first().and_then(|value| value.parse::<u64>().ok());
+             let minor = fields.get(1).and_then(|value| value.parse::<u64>().ok());
+             if major == Some(root_major) && minor == Some(root_minor) {
+[31m-                let sectors_read = fields.get(5).and_then(|v| v.parse::<u64>().ok()).unwrap_or(0);
+(B[m[31m-                let sectors_written = fields.get(9).and_then(|v| v.parse::<u64>().ok()).unwrap_or(0);
+(B[m[32m+                let sectors_read = fields
+(B[m[32m+                    .get(5)
+(B[m[32m+                    .and_then(|v| v.parse::<u64>().ok())
+(B[m[32m+                    .unwrap_or(0);
+(B[m[32m+                let sectors_written = fields
+(B[m[32m+                    .get(9)
+(B[m[32m+                    .and_then(|v| v.parse::<u64>().ok())
+(B[m[32m+                    .unwrap_or(0);
+(B[m                 return Some(ByteCounters {
+                     first: sectors_read.saturating_mul(512),
+                     second: sectors_written.saturating_mul(512),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:565:
+         if !Path::new("/sys/block").join(name).exists() {
+             continue;
+         }
+[31m-        let sectors_read = fields.get(5).and_then(|v| v.parse::<u64>().ok()).unwrap_or(0);
+(B[m[31m-        let sectors_written = fields.get(9).and_then(|v| v.parse::<u64>().ok()).unwrap_or(0);
+(B[m[32m+        let sectors_read = fields
+(B[m[32m+            .get(5)
+(B[m[32m+            .and_then(|v| v.parse::<u64>().ok())
+(B[m[32m+            .unwrap_or(0);
+(B[m[32m+        let sectors_written = fields
+(B[m[32m+            .get(9)
+(B[m[32m+            .and_then(|v| v.parse::<u64>().ok())
+(B[m[32m+            .unwrap_or(0);
+(B[m         read_bytes = read_bytes.saturating_add(sectors_read.saturating_mul(512));
+         write_bytes = write_bytes.saturating_add(sectors_written.saturating_mul(512));
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:620:
+ 
+ fn baseline_description(history: &[TelemetrySnapshot], now: u64) -> String {
+     if baseline_ready(history, now) {
+[31m-        let oldest = history.first().map(|sample| sample.timestamp_unix).unwrap_or(now);
+(B[m[32m+        let oldest = history
+(B[m[32m+            .first()
+(B[m[32m+            .map(|sample| sample.timestamp_unix)
+(B[m[32m+            .unwrap_or(now);
+(B[m         format!(
+             "{} samples • {} of local history",
+             history.len(),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:635:
+     }
+ }
+ 
+[31m-fn summarize_history(history: &[TelemetrySnapshot], now: u64, window_secs: u64) -> HistoricalVitalsSummary {
+(B[m[32m+fn summarize_history(
+(B[m[32m+    history: &[TelemetrySnapshot],
+(B[m[32m+    now: u64,
+(B[m[32m+    window_secs: u64,
+(B[m[32m+) -> HistoricalVitalsSummary {
+(B[m     let samples: Vec<&TelemetrySnapshot> = history
+         .iter()
+         .filter(|sample| now.saturating_sub(sample.timestamp_unix) <= window_secs)
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:671:
+         disk_peak = disk_peak.max(disk);
+     }
+     let count = samples.len();
+[31m-    let oldest = samples.first().map(|sample| sample.timestamp_unix).unwrap_or(now);
+(B[m[32m+    let oldest = samples
+(B[m[32m+        .first()
+(B[m[32m+        .map(|sample| sample.timestamp_unix)
+(B[m[32m+        .unwrap_or(now);
+(B[m     HistoricalVitalsSummary {
+         sample_count: count,
+         window_secs: now.saturating_sub(oldest).min(window_secs),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:686:
+     }
+ }
+ 
+[31m-fn detect_anomalies(history: &[TelemetrySnapshot], current: &TelemetrySnapshot) -> Vec<ProcessAnomaly> {
+(B[m[32m+fn detect_anomalies(
+(B[m[32m+    history: &[TelemetrySnapshot],
+(B[m[32m+    current: &TelemetrySnapshot,
+(B[m[32m+) -> Vec<ProcessAnomaly> {
+(B[m     let baseline: Vec<&TelemetrySnapshot> = history
+         .iter()
+         .filter(|sample| sample.timestamp_unix < current.timestamp_unix)
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:698:
+     }
+ 
+     let mut anomalies = Vec::new();
+[31m-    let baseline_cpu = median(baseline.iter().map(|sample| sample.system.cpu_pct).collect());
+(B[m[32m+    let baseline_cpu = median(
+(B[m[32m+        baseline
+(B[m[32m+            .iter()
+(B[m[32m+            .map(|sample| sample.system.cpu_pct)
+(B[m[32m+            .collect(),
+(B[m[32m+    );
+(B[m     if current.system.cpu_pct >= 90.0 && current.system.cpu_pct >= baseline_cpu + 20.0 {
+         anomalies.push(ProcessAnomaly {
+             pid: None,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:795:
+         let key = process.key();
+         let process_history: Vec<&ProcessMetric> = baseline
+             .iter()
+[31m-            .filter_map(|sample| sample.processes.iter().find(|candidate| candidate.key() == key))
+(B[m[32m+            .filter_map(|sample| {
+(B[m[32m+                sample
+(B[m[32m+                    .processes
+(B[m[32m+                    .iter()
+(B[m[32m+                    .find(|candidate| candidate.key() == key)
+(B[m[32m+            })
+(B[m             .collect();
+         if process_history.len() < MIN_ANOMALY_SAMPLES {
+             continue;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:802:
+         }
+ 
+[31m-        let cpu_baseline = median(process_history.iter().map(|sample| sample.cpu_pct).collect());
+(B[m[32m+        let cpu_baseline = median(
+(B[m[32m+            process_history
+(B[m[32m+                .iter()
+(B[m[32m+                .map(|sample| sample.cpu_pct)
+(B[m[32m+                .collect(),
+(B[m[32m+        );
+(B[m         if process.cpu_pct >= 35.0 && process.cpu_pct >= cpu_baseline + 20.0 {
+             anomalies.push(ProcessAnomaly {
+                 pid: Some(process.pid),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:816:
+                 } else {
+                     AnomalySeverity::Attention
+                 },
+[31m-                first_observed_unix: first_process_crossing(history, key, current.timestamp_unix, |sample| {
+(B[m[31m-                    sample.cpu_pct >= 30.0
+(B[m[31m-                }),
+(B[m[32m+                first_observed_unix: first_process_crossing(
+(B[m[32m+                    history,
+(B[m[32m+                    key,
+(B[m[32m+                    current.timestamp_unix,
+(B[m[32m+                    |sample| sample.cpu_pct >= 30.0,
+(B[m[32m+                ),
+(B[m             });
+         }
+ 
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:825:
+[31m-        let oldest_ram = process_history.last().map(|sample| sample.ram_bytes).unwrap_or(0);
+(B[m[32m+        let oldest_ram = process_history
+(B[m[32m+            .last()
+(B[m[32m+            .map(|sample| sample.ram_bytes)
+(B[m[32m+            .unwrap_or(0);
+(B[m         let ram_growth = process.ram_bytes.saturating_sub(oldest_ram);
+[31m-        let meaningful_ratio = oldest_ram == 0
+(B[m[31m-            || process.ram_bytes as f64 / oldest_ram.max(1) as f64 >= 1.25;
+(B[m[32m+        let meaningful_ratio =
+(B[m[32m+            oldest_ram == 0 || process.ram_bytes as f64 / oldest_ram.max(1) as f64 >= 1.25;
+(B[m         if ram_growth >= 256 * 1024 * 1024 && meaningful_ratio {
+             anomalies.push(ProcessAnomaly {
+                 pid: Some(process.pid),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:846:
+                 first_observed_unix: history
+                     .iter()
+                     .find(|snapshot| {
+[31m-                        snapshot.processes.iter().any(|candidate| candidate.key() == key)
+(B[m[32m+                        snapshot
+(B[m[32m+                            .processes
+(B[m[32m+                            .iter()
+(B[m[32m+                            .any(|candidate| candidate.key() == key)
+(B[m                     })
+                     .map(|snapshot| snapshot.timestamp_unix)
+                     .unwrap_or(current.timestamp_unix),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:874:
+                     crate::format::bytes(io_baseline)
+                 ),
+                 severity: AnomalySeverity::Attention,
+[31m-                first_observed_unix: first_process_crossing(history, key, current.timestamp_unix, |sample| {
+(B[m[31m-                    sample.io_bytes_per_sec() >= 16 * 1024 * 1024
+(B[m[31m-                }),
+(B[m[32m+                first_observed_unix: first_process_crossing(
+(B[m[32m+                    history,
+(B[m[32m+                    key,
+(B[m[32m+                    current.timestamp_unix,
+(B[m[32m+                    |sample| sample.io_bytes_per_sec() >= 16 * 1024 * 1024,
+(B[m[32m+                ),
+(B[m             });
+         }
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:883:
+ 
+     let mut seen = HashSet::new();
+[31m-    anomalies.retain(|anomaly| {
+(B[m[31m-        seen.insert((anomaly.pid, anomaly.title.clone()))
+(B[m[31m-    });
+(B[m[32m+    anomalies.retain(|anomaly| seen.insert((anomaly.pid, anomaly.title.clone())));
+(B[m     anomalies.sort_by_key(|anomaly| match anomaly.severity {
+         AnomalySeverity::Critical => 0,
+         AnomalySeverity::Attention => 1,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:1098:
+         let current = snapshot(140, 30.0, process(100, 80.0, 200_000_000, 0));
+         history.push(current.clone());
+         let anomalies = detect_anomalies(&history, &current);
+[31m-        assert!(anomalies.iter().any(|anomaly| anomaly.title.contains("CPU growth")));
+(B[m[32m+        assert!(anomalies
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|anomaly| anomaly.title.contains("CPU growth")));
+(B[m     }
+ 
+     #[test]
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/process_intelligence.rs:1110:
+         let current = snapshot(140, 20.0, process(100, 5.0, 700_000_000, 0));
+         history.push(current.clone());
+         let anomalies = detect_anomalies(&history, &current);
+[31m-        assert!(anomalies.iter().any(|anomaly| anomaly.title.contains("memory growth")));
+(B[m[32m+        assert!(anomalies
+(B[m[32m+            .iter()
+(B[m[32m+            .any(|anomaly| anomaly.title.contains("memory growth")));
+(B[m     }
+ 
+     #[test]
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/providers/privileged.rs:66:
+                 &(device,),
+             )
+             .map_err(|error| ProviderError::Operation(error.to_string()))?
+[31m-            .ok_or_else(|| ProviderError::Operation("privileged helper returned no health reply".into()))
+(B[m[32m+            .ok_or_else(|| {
+(B[m[32m+                ProviderError::Operation("privileged helper returned no health reply".into())
+(B[m[32m+            })
+(B[m     }
+[31m-
+(B[m 
+     fn interactive_call<B>(&self, method: &str, body: &B) -> Result<u64, ProviderError>
+     where
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:66:
+     #[error("quarantine record was not found")]
+     RecordNotFound,
+     #[error("Safety Quarantine limit would be exceeded ({current} + {incoming} > {limit} bytes)")]
+[31m-    QuarantineLimitExceeded { current: u64, incoming: u64, limit: u64 },
+(B[m[32m+    QuarantineLimitExceeded {
+(B[m[32m+        current: u64,
+(B[m[32m+        incoming: u64,
+(B[m[32m+        limit: u64,
+(B[m[32m+    },
+(B[m     #[error("filesystem error: {0}")]
+     Io(#[from] io::Error),
+ }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:192:
+         return Ok(Vec::new());
+     }
+     let payload = fs::read(path)?;
+[31m-    let mut records: Vec<QuarantineRecord> =
+(B[m[31m-        serde_json::from_slice(&payload).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+(B[m[32m+    let mut records: Vec<QuarantineRecord> = serde_json::from_slice(&payload)
+(B[m[32m+        .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+(B[m 
+     // A Preparing record can be left behind by a crash. Keep only paths that actually
+     // reached quarantine and expose them as Active so the user can recover or purge them.
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:219:
+         if !entry.quarantined.exists() {
+             return Err(QuarantineError::Io(io::Error::new(
+                 io::ErrorKind::NotFound,
+[31m-                format!("quarantine data is missing: {}", entry.quarantined.display()),
+(B[m[32m+                format!(
+(B[m[32m+                    "quarantine data is missing: {}",
+(B[m[32m+                    entry.quarantined.display()
+(B[m[32m+                ),
+(B[m             )));
+         }
+         validate_quarantined_path(&entry.quarantined, home)?;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:260:
+         if !entry.quarantined.exists() {
+             return Err(QuarantineError::Io(io::Error::new(
+                 io::ErrorKind::NotFound,
+[31m-                format!("quarantine data is missing: {}", entry.quarantined.display()),
+(B[m[32m+                format!(
+(B[m[32m+                    "quarantine data is missing: {}",
+(B[m[32m+                    entry.quarantined.display()
+(B[m[32m+                ),
+(B[m             )));
+         }
+         validate_quarantined_path(&entry.quarantined, home)?;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:278:
+         if destination.exists() {
+             return Err(QuarantineError::Io(io::Error::new(
+                 io::ErrorKind::AlreadyExists,
+[31m-                format!("recovery destination already exists: {}", destination.display()),
+(B[m[32m+                format!(
+(B[m[32m+                    "recovery destination already exists: {}",
+(B[m[32m+                    destination.display()
+(B[m[32m+                ),
+(B[m             )));
+         }
+         destinations.push(destination);
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:285:
+     }
+ 
+[31m-    for (moved, (entry, destination)) in record
+(B[m[31m-        .paths
+(B[m[31m-        .iter()
+(B[m[31m-        .zip(destinations.iter())
+(B[m[31m-        .enumerate()
+(B[m[31m-    {
+(B[m[32m+    for (moved, (entry, destination)) in record.paths.iter().zip(destinations.iter()).enumerate() {
+(B[m         if let Err(err) = rename_noreplace(&entry.quarantined, destination) {
+             for (rollback_entry, rollback_destination) in record
+                 .paths
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:403:
+     if !parent.starts_with(&home) {
+         return Err(QuarantineError::OutsideAllowlist(path.to_path_buf()));
+     }
+[31m-    let name = path.file_name().and_then(|name| name.to_str()).unwrap_or("");
+(B[m[32m+    let name = path
+(B[m[32m+        .file_name()
+(B[m[32m+        .and_then(|name| name.to_str())
+(B[m[32m+        .unwrap_or("");
+(B[m     if !is_internal_quarantine_name(name) {
+         return Err(QuarantineError::OutsideAllowlist(path.to_path_buf()));
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/quarantine.rs:599:
+     use std::{ffi::CString, os::unix::ffi::OsStrExt};
+     let from = CString::new(from.as_os_str().as_bytes())
+         .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "source path contains NUL"))?;
+[31m-    let to = CString::new(to.as_os_str().as_bytes())
+(B[m[31m-        .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "destination path contains NUL"))?;
+(B[m[32m+    let to = CString::new(to.as_os_str().as_bytes()).map_err(|_| {
+(B[m[32m+        io::Error::new(io::ErrorKind::InvalidInput, "destination path contains NUL")
+(B[m[32m+    })?;
+(B[m     let rc = unsafe {
+         libc::renameat2(
+             libc::AT_FDCWD,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/scan/scanners/crash_reports.rs:20:
+         };
+ 
+         let crash_paths = [
+[31m-            ("/var/crash", CleanupRisk::Review, ExecutionKind::AnalysisOnly),
+(B[m[32m+            (
+(B[m[32m+                "/var/crash",
+(B[m[32m+                CleanupRisk::Review,
+(B[m[32m+                ExecutionKind::AnalysisOnly,
+(B[m[32m+            ),
+(B[m             (
+                 ".local/share/coredump",
+                 CleanupRisk::Safe,
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/service_doctor.rs:208:
+         return None;
+     }
+ 
+[31m-    Some(String::from_utf8_lossy(&output.stdout)
+(B[m[31m-        .lines()
+(B[m[31m-        .filter_map(|line| {
+(B[m[31m-            let parts = line.split_whitespace().collect::<Vec<_>>();
+(B[m[31m-            if parts.len() < 4 {
+(B[m[31m-                return None;
+(B[m[31m-            }
+(B[m[31m-            Some(UnitState {
+(B[m[31m-                name: parts[0].to_string(),
+(B[m[31m-                active: parts[2].to_string(),
+(B[m[31m-                substate: parts[3].to_string(),
+(B[m[32m+    Some(
+(B[m[32m+        String::from_utf8_lossy(&output.stdout)
+(B[m[32m+            .lines()
+(B[m[32m+            .filter_map(|line| {
+(B[m[32m+                let parts = line.split_whitespace().collect::<Vec<_>>();
+(B[m[32m+                if parts.len() < 4 {
+(B[m[32m+                    return None;
+(B[m[32m+                }
+(B[m[32m+                Some(UnitState {
+(B[m[32m+                    name: parts[0].to_string(),
+(B[m[32m+                    active: parts[2].to_string(),
+(B[m[32m+                    substate: parts[3].to_string(),
+(B[m[32m+                })
+(B[m             })
+[31m-        })
+(B[m[31m-        .collect())
+(B[m[32m+            .collect(),
+(B[m[32m+    )
+(B[m }
+ 
+ fn count_unit_files(user: bool, state: &str) -> Option<usize> {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/service_doctor.rs:276:
+     }
+     signals.push(ServiceSignal {
+         title: title.to_string(),
+[31m-        detail: format!(
+(B[m[31m-            "{} failed unit(s): {}",
+(B[m[31m-            units.len(),
+(B[m[31m-            preview(units, 5)
+(B[m[31m-        ),
+(B[m[32m+        detail: format!("{} failed unit(s): {}", units.len(), preview(units, 5)),
+(B[m         state: if units.len() >= 3 {
+             ServiceState::Critical
+         } else {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/service_doctor.rs:298:
+     if !available {
+         signals.push(ServiceSignal {
+             title: title.to_string(),
+[31m-            detail: "This systemd scope could not be enumerated; restart-loop state is unknown.".to_string(),
+(B[m[32m+            detail: "This systemd scope could not be enumerated; restart-loop state is unknown."
+(B[m[32m+                .to_string(),
+(B[m             state: ServiceState::Unknown,
+         });
+         return;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/service_doctor.rs:323:
+ }
+ 
+ fn preview(items: &[String], limit: usize) -> String {
+[31m-    let mut value = items.iter().take(limit).cloned().collect::<Vec<_>>().join(", ");
+(B[m[32m+    let mut value = items
+(B[m[32m+        .iter()
+(B[m[32m+        .take(limit)
+(B[m[32m+        .cloned()
+(B[m[32m+        .collect::<Vec<_>>()
+(B[m[32m+        .join(", ");
+(B[m     if items.len() > limit {
+         value.push_str(&format!(" +{} more", items.len() - limit));
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/storage_intelligence.rs:87:
+             (
+                 i128::from(current.total_reclaimable_bytes)
+                     - i128::from(previous.total_reclaimable_bytes),
+[31m-                current.timestamp_unix.saturating_sub(previous.timestamp_unix),
+(B[m[32m+                current
+(B[m[32m+                    .timestamp_unix
+(B[m[32m+                    .saturating_sub(previous.timestamp_unix),
+(B[m             )
+         })
+         .unwrap_or((0, 0));
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/storage_runway.rs:51:
+     let mut history = load_history(&path).unwrap_or_default();
+     maybe_record(&path, &mut history, current.clone());
+ 
+[31m-    let window_start = current
+(B[m[31m-        .timestamp_unix
+(B[m[31m-        .saturating_sub(ANALYSIS_WINDOW_SECS);
+(B[m[32m+    let window_start = current.timestamp_unix.saturating_sub(ANALYSIS_WINDOW_SECS);
+(B[m     let recent: Vec<&StorageSample> = history
+         .iter()
+         .filter(|sample| sample.timestamp_unix >= window_start)
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/storage_runway.rs:162:
+         if days <= 14.0 {
+             return (
+                 "Pressure soon".to_string(),
+[31m-                format!("At the observed trend, root storage may reach 90% in {}.", format_days(Some(days))),
+(B[m[32m+                format!(
+(B[m[32m+                    "At the observed trend, root storage may reach 90% in {}.",
+(B[m[32m+                    format_days(Some(days))
+(B[m[32m+                ),
+(B[m             );
+         }
+         if days <= 60.0 {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/storage_runway.rs:169:
+             return (
+                 "Growing".to_string(),
+[31m-                format!("Storage is growing fast enough to reach 90% in {} if the trend continues.", format_days(Some(days))),
+(B[m[32m+                format!(
+(B[m[32m+                    "Storage is growing fast enough to reach 90% in {} if the trend continues.",
+(B[m[32m+                    format_days(Some(days))
+(B[m[32m+                ),
+(B[m             );
+         }
+     }
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/storage_runway.rs:237:
+ fn maybe_record(path: &Path, history: &mut Vec<StorageSample>, current: StorageSample) {
+     let should_record = history
+         .last()
+[31m-        .map(|last| current.timestamp_unix.saturating_sub(last.timestamp_unix) >= SAMPLE_INTERVAL_SECS)
+(B[m[32m+        .map(|last| {
+(B[m[32m+            current.timestamp_unix.saturating_sub(last.timestamp_unix) >= SAMPLE_INTERVAL_SECS
+(B[m[32m+        })
+(B[m         .unwrap_or(true);
+     if !should_record {
+         return;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/storage_runway.rs:295:
+         .duration_since(UNIX_EPOCH)
+         .unwrap_or_default()
+         .as_nanos();
+[31m-    let tmp = dir.join(format!(".storage-runway-{}-{nonce}.tmp", std::process::id()));
+(B[m[32m+    let tmp = dir.join(format!(
+(B[m[32m+        ".storage-runway-{}-{nonce}.tmp",
+(B[m[32m+        std::process::id()
+(B[m[32m+    ));
+(B[m     let payload = serde_json::to_vec_pretty(history)
+         .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
+     let mut file = OpenOptions::new().create_new(true).write(true).open(&tmp)?;
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/thermal_doctor.rs:82:
+             if throttled {
+                 "Temperature is not currently critical, but the kernel exposes one or more CPU throttle events since boot. This is evidence of past thermal/power limiting, not necessarily a current fault.".to_string()
+             } else {
+[31m-                "One or more sensors are warm enough to justify monitoring under sustained load.".to_string()
+(B[m[32m+                "One or more sensors are warm enough to justify monitoring under sustained load."
+(B[m[32m+                    .to_string()
+(B[m             },
+         )
+     } else if sensors.is_empty() {
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/thermal_doctor.rs:136:
+             let label = read_text(&path.join(format!("temp{index}_label")))
+                 .unwrap_or_else(|| format!("temp{index}"));
+             let max_c = read_f64(&path.join(format!("temp{index}_max"))).map(|v| v / 1000.0);
+[31m-            let critical_c =
+(B[m[31m-                read_f64(&path.join(format!("temp{index}_crit"))).map(|v| v / 1000.0);
+(B[m[32m+            let critical_c = read_f64(&path.join(format!("temp{index}_crit"))).map(|v| v / 1000.0);
+(B[m             let state = classify_temperature(temperature_c, max_c, critical_c);
+             sensors.push(ThermalSensor {
+                 name: format!("{chip} • {label}"),
+Diff in /home/milmit/Downloads/LinuxCare-v0.7.0-beta.1-release-buildfix1/LinuxCare-0.7.0-beta.1/src/main.rs:22:
+         }
+     }
+ 
+[31m-    let smoke_mode = std::env::var_os("LINUXCARE_GUI_SMOKE")
+(B[m[31m-        .as_deref()
+(B[m[31m-        == Some(std::ffi::OsStr::new("1"));
+(B[m[32m+    let smoke_mode =
+(B[m[32m+        std::env::var_os("LINUXCARE_GUI_SMOKE").as_deref() == Some(std::ffi::OsStr::new("1"));
+(B[m 
+     let mut builder = adw::Application::builder().application_id(APP_ID);
+     if smoke_mode {

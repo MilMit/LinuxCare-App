@@ -1,0 +1,123 @@
+name: LinuxCare CI
+
+on:
+  push:
+    branches: [ main, master, "alpha/*", "beta/*" ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  quality:
+    name: Quality / Ubuntu 24.04 / Rust 1.93
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libgtk-4-dev libadwaita-1-dev libgraphene-1.0-dev \
+            dpkg-dev desktop-file-utils appstream lintian shellcheck nodejs xvfb dbus-x11
+
+      - name: Install pinned Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.93.0
+          components: clippy, rustfmt
+
+      - name: Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Full verification gate
+        run: ./scripts/verify.sh
+
+      - name: GUI startup smoke (1024x600)
+        run: ./scripts/smoke-gui.sh
+
+      - name: Build Debian package
+        run: ./scripts/build-deb.sh
+
+      - name: Validate Debian package
+        run: ./scripts/validate-package.sh
+
+      - name: Staged install / upgrade / uninstall lifecycle
+        run: ./scripts/test-install-lifecycle.sh
+
+      - name: Real Debian install / remove smoke
+        run: sudo ./scripts/smoke-deb-install.sh
+
+      - name: Generate Cargo SPDX SBOM
+        run: python3 scripts/generate-sbom.py
+
+      - name: Upload package and SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: linuxcare-ubuntu-24.04
+          if-no-files-found: error
+          path: |
+            target/deb/*.deb
+            target/SBOM.spdx.json
+
+  msrv:
+    name: MSRV / Rust 1.92 / Ubuntu 24.04
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install native development dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libgtk-4-dev libadwaita-1-dev libgraphene-1.0-dev \
+            dpkg-dev desktop-file-utils appstream lintian shellcheck nodejs xvfb dbus-x11
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.92.0
+      - name: Check declared MSRV
+        run: cargo +1.92.0 check --workspace --all-targets
+
+  ubuntu-26-compat:
+    name: Compatibility / Ubuntu 26.04 preview
+    runs-on: ubuntu-26.04
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install native development dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential pkg-config libgtk-4-dev libadwaita-1-dev libgraphene-1.0-dev \
+            dpkg-dev desktop-file-utils appstream lintian shellcheck nodejs xvfb dbus-x11
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.93.0
+          components: clippy, rustfmt
+      - name: Ubuntu 26.04 compatibility check
+        run: |
+          cargo fmt --all -- --check
+          cargo check --workspace --all-targets
+          cargo clippy --workspace --all-targets --all-features -- -D warnings
+          cargo test --workspace --all-targets
+          cargo build --workspace --all-targets
+
+      - name: GUI startup smoke (1024x600)
+        run: ./scripts/smoke-gui.sh
+
+      - name: Build and validate Debian package
+        run: |
+          ./scripts/build-deb.sh
+          ./scripts/validate-package.sh
+
+      - name: Staged install lifecycle
+        run: ./scripts/test-install-lifecycle.sh
+
+      - name: Real Debian install/remove smoke
+        run: sudo ./scripts/smoke-deb-install.sh

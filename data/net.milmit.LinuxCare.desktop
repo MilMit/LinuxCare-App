@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=LinuxCare
+Comment=Safety-first Linux system maintenance
+Exec=linuxcare
+Icon=net.milmit.LinuxCare
+Terminal=false
+Type=Application
+Categories=System;Monitor;
+Keywords=cleanup;storage;cache;maintenance;system;
+StartupNotify=true
+X-GNOME-UsesNotifications=true

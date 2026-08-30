@@ -1,0 +1,44 @@
+name: linuxcare
+base: core24
+version: '0.7.0-beta.1'
+summary: Safe, professional Linux maintenance and storage suite
+description: |
+  LinuxCare is a modern GTK4/Libadwaita application for Ubuntu and GNOME desktops
+  developed by MilMit (https://milmit.net).
+  It provides safe cleanup for APT package caches, Snap revisions, system journals,
+  storage analytics, live system vitals, network diagnostics, live socket ownership/eBPF readiness, container storage analysis, package diagnostics, battery health, hardware inventory, Safety Quarantine, maintenance timeline, GNOME integration, and security auditing.
+
+grade: devel
+# Development packaging only. Full LinuxCare system maintenance currently depends
+# on host Polkit/D-Bus integration and is not claimed App Center-ready yet.
+confinement: classic
+
+apps:
+  linuxcare:
+    command: usr/bin/linuxcare
+    desktop: usr/share/applications/net.milmit.LinuxCare.desktop
+    extensions: [gnome]
+    plugs:
+      - home
+      - network
+      - network-bind
+      - system-observe
+      - hardware-observe
+      - mount-observe
+
+parts:
+  linuxcare:
+    plugin: rust
+    source: .
+    build-packages:
+      - libgtk-4-dev
+      - libadwaita-1-dev
+      - libgraphene-1.0-dev
+      - pkg-config
+    override-build: |
+      cargo build --release --workspace
+      install -Dm755 target/release/linuxcare $CRAFT_PART_INSTALL/usr/bin/linuxcare
+      install -Dm755 target/release/linuxcare-maintenance $CRAFT_PART_INSTALL/usr/bin/linuxcare-maintenance
+      install -Dm755 target/release/linuxcare-helper $CRAFT_PART_INSTALL/usr/libexec/linuxcare-helper
+      install -Dm644 data/net.milmit.LinuxCare.desktop $CRAFT_PART_INSTALL/usr/share/applications/net.milmit.LinuxCare.desktop
+      install -Dm644 data/net.milmit.LinuxCare.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/net.milmit.LinuxCare.metainfo.xml

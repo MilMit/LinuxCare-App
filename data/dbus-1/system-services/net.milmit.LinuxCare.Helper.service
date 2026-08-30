@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=net.milmit.LinuxCare.Helper
+Exec=/usr/libexec/linuxcare-helper
+User=root
+SystemdService=linuxcare-helper.service

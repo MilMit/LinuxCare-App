@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>MilMit</vendor>
+  <icon_name>net.milmit.LinuxCare</icon_name>
+
+  <action id="net.milmit.LinuxCare.clean-apt-cache">
+    <description>Clean the APT package download cache</description>
+    <message>Authentication is required to clean the APT package cache</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+
+  <action id="net.milmit.LinuxCare.autoremove-packages">
+    <description>Remove APT packages that are no longer required</description>
+    <message>Authentication is required to autoremove unused package dependencies</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+  <action id="net.milmit.LinuxCare.remove-snap-revision">
+    <description>Remove a disabled Snap revision</description>
+    <message>Authentication is required to remove an old disabled Snap revision</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+  <action id="net.milmit.LinuxCare.read-storage-health">
+    <description>Read SMART and NVMe health information for storage devices</description>
+    <message>Authentication is required to read low-level storage health information</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+  <action id="net.milmit.LinuxCare.vacuum-journal">
+    <description>Vacuum old system journal files</description>
+    <message>Authentication is required to remove old system journal files</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+</policyconfig>
