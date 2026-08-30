@@ -32,6 +32,8 @@ parts:
   linuxcare:
     plugin: rust
     source: .
+    build-attributes:
+      - enable-patchelf
     build-packages:
       - libgtk-4-dev
       - libadwaita-1-dev
