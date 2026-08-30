@@ -1,6 +1,6 @@
 # LinuxCare 0.7.0-beta.1 — Public Beta
 
-LinuxCare 0.7.0-beta.1 is the first Beta release candidate of the safety-first Linux maintenance suite for Ubuntu/GNOME. This release freezes the current feature set and focuses on verification, packaging, upgrade safety, privilege separation, and reproducible release artifacts.
+LinuxCare 0.7.0-beta.1 is the first public Beta release of the safety-first Linux maintenance suite for Ubuntu/GNOME. This release freezes the current feature set and focuses on verification, packaging, upgrade safety, privilege separation, and reproducible release artifacts.
 
 ## Highlights
 
@@ -21,13 +21,9 @@ Scheduled maintenance never performs privileged APT, Snap, Flatpak, journal, fir
 
 ## Beta verification status
 
-The project Beta gate has completed successfully on the development Ubuntu host, including Rust formatting, `cargo check`, Clippy with warnings denied, unit tests, development build, isolated 1024×600 GUI startup, static/security validation, package staging, and staged install/upgrade/uninstall lifecycle checks.
+The project Beta gate completed successfully on the development Ubuntu host, including Rust formatting, `cargo check`, Clippy with warnings denied, unit tests, development and optimized release builds, isolated 1024×600 GUI startup, static/security validation, package staging, and staged install/upgrade/uninstall lifecycle checks.
 
-Before publishing a binary release, run the real root-level Debian install/remove smoke on an ephemeral VM or disposable test host:
-
-```bash
-sudo ./scripts/smoke-deb-install.sh
-```
+The real root-level Debian install/upgrade/remove smoke test also completed successfully. The verified Debian package installed with its runtime dependencies, upgraded the staged previous version, and removed cleanly.
 
 ## Optional runtime integrations
 
@@ -59,13 +55,13 @@ AppStream recommends 16:9 screenshots with a width of at least 620 px. The repos
 
 ## Install
 
-The preferred Beta artifact is the Debian package produced by the verified release workflow:
+The preferred Beta artifact is the verified Debian package:
 
 ```bash
 sudo apt install ./linuxcare_0.7.0-beta.1_amd64.deb
 ```
 
-The release workflow also produces a binary tarball, deterministic source tarball, SPDX 2.3 SBOM, release manifest, and SHA256 checksums.
+The release also provides a binary tarball, deterministic source tarball, SPDX 2.3 SBOM, release manifest, and SHA256 checksums.
 
 ## Reporting issues
 
