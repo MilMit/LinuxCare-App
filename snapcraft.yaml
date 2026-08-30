@@ -21,12 +21,31 @@ grade: devel
 # confinement approval from the Store review team before release.
 confinement: classic
 
+plugs:
+  polkit:
+    interface: polkit
+    action-prefix: net.milmit.LinuxCare
+
+slots:
+  linuxcare-helper-dbus:
+    interface: dbus
+    bus: system
+    name: net.milmit.LinuxCare.Helper
+
 apps:
   linuxcare:
     command: usr/bin/linuxcare
     desktop: usr/share/applications/net.milmit.LinuxCare.desktop
     environment:
       XDG_DATA_DIRS: $SNAP/usr/share:$XDG_DATA_DIRS
+
+  linuxcare-helper:
+    command: usr/libexec/linuxcare-helper
+    daemon: dbus
+    activates-on:
+      - linuxcare-helper-dbus
+    plugs:
+      - polkit
 
 parts:
   linuxcare:
@@ -51,3 +70,4 @@ parts:
       install -Dm644 data/net.milmit.LinuxCare.desktop $CRAFT_PART_INSTALL/usr/share/applications/net.milmit.LinuxCare.desktop
       install -Dm644 data/net.milmit.LinuxCare.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/net.milmit.LinuxCare.metainfo.xml
       install -Dm644 data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
+      install -Dm644 data/polkit-1/actions/net.milmit.LinuxCare.policy $CRAFT_PART_INSTALL/meta/polkit/polkit.linuxcare.policy
