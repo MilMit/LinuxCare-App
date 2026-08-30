@@ -25,14 +25,8 @@ apps:
   linuxcare:
     command: usr/bin/linuxcare
     desktop: usr/share/applications/net.milmit.LinuxCare.desktop
-    extensions: [gnome]
-    plugs:
-      - home
-      - network
-      - network-bind
-      - system-observe
-      - hardware-observe
-      - mount-observe
+    environment:
+      XDG_DATA_DIRS: $SNAP/usr/share:$XDG_DATA_DIRS
 
 parts:
   linuxcare:
@@ -43,6 +37,10 @@ parts:
       - libadwaita-1-dev
       - libgraphene-1.0-dev
       - pkg-config
+    stage-packages:
+      - libgtk-4-1
+      - libadwaita-1-0
+      - libgraphene-1.0-0
     override-build: |
       cargo build --release --workspace
       install -Dm755 target/release/linuxcare $CRAFT_PART_INSTALL/usr/bin/linuxcare
