@@ -41,6 +41,30 @@ jobs:
       - name: Install locally as classic Snap
         run: sudo snap install --dangerous --classic "${{ steps.snapcraft.outputs.snap }}"
 
+      - name: Connect local Polkit interface for smoke test
+        run: sudo snap connect linuxcare:polkit
+
+      - name: Verify Polkit policy installation
+        run: |
+          snap connections linuxcare
+          grep -Rsl 'net.milmit.LinuxCare.clean-apt-cache' /usr/share/polkit-1/actions/ | grep '/snap.linuxcare.'
+
+      - name: Verify helper is D-Bus activated, not boot-started
+        run: |
+          if systemctl is-active --quiet snap.linuxcare.linuxcare-helper.service; then
+            echo 'linuxcare-helper unexpectedly started before a D-Bus request' >&2
+            systemctl status snap.linuxcare.linuxcare-helper.service --no-pager || true
+            exit 1
+          fi
+          reply="$(busctl call \
+            net.milmit.LinuxCare.Helper \
+            /net/milmit/LinuxCare/Helper \
+            net.milmit.LinuxCare.Helper1 \
+            GetVersion)"
+          echo "$reply"
+          grep -F '0.7.0-beta.2' <<<"$reply"
+          systemctl is-active --quiet snap.linuxcare.linuxcare-helper.service
+
       - name: GUI startup smoke from installed Snap
         run: |
           timeout 20s xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
