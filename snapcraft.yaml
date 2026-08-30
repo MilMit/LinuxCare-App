@@ -1,6 +1,7 @@
 name: linuxcare
 base: core24
 version: '0.7.0-beta.2'
+title: LinuxCare
 summary: Safe, professional Linux maintenance and storage suite
 description: |
   LinuxCare is a modern GTK4/Libadwaita application for Ubuntu and GNOME desktops
@@ -8,9 +9,16 @@ description: |
   It provides safe cleanup for APT package caches, Snap revisions, system journals,
   storage analytics, live system vitals, network diagnostics, live socket ownership/eBPF readiness, container storage analysis, package diagnostics, battery health, hardware inventory, Safety Quarantine, maintenance timeline, GNOME integration, and security auditing.
 
+website: https://milmit.net
+source-code: https://github.com/MilMit/LinuxCare
+issues: https://github.com/MilMit/LinuxCare/issues
+contact: mailto:info@milmit.net
+icon: data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
+
 grade: devel
-# Development packaging only. Full LinuxCare system maintenance currently depends
-# on host Polkit/D-Bus integration and is not claimed App Center-ready yet.
+# LinuxCare performs host-level maintenance and therefore intentionally uses
+# classic confinement. Public Snap Store publication requires classic
+# confinement approval from the Store review team before release.
 confinement: classic
 
 apps:
@@ -42,3 +50,4 @@ parts:
       install -Dm755 target/release/linuxcare-helper $CRAFT_PART_INSTALL/usr/libexec/linuxcare-helper
       install -Dm644 data/net.milmit.LinuxCare.desktop $CRAFT_PART_INSTALL/usr/share/applications/net.milmit.LinuxCare.desktop
       install -Dm644 data/net.milmit.LinuxCare.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/net.milmit.LinuxCare.metainfo.xml
+      install -Dm644 data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
