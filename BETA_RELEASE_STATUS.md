@@ -1,14 +1,30 @@
-# LinuxCare 0.7.0-beta.1 release status
+# LinuxCare Beta release status
 
-## Published public Beta
+## 0.7.0-beta.2 release candidate
 
-LinuxCare `0.7.0-beta.1` has been published as a GitHub **Pre-release** at:
+LinuxCare `0.7.0-beta.2` is the current release candidate. It is intentionally feature-frozen and focuses on Debian package reliability and release hardening after beta.1 CI exposed policy failures that were not caught on hosts without Lintian installed.
+
+The beta.2 candidate includes:
+
+- corrected Debian runtime dependency metadata (`libc6`, `polkitd`);
+- stripped release binaries;
+- Debian copyright/changelog/manual-page metadata;
+- safer systemd maintainer-script integration;
+- stronger package validation and Lintian gating;
+- explicit staging permission normalization before `dpkg-deb`;
+- synchronized Cargo, Cargo.lock, Snap, AppStream, release notes, and verification metadata.
+
+Before tagging `v0.7.0-beta.2`, the pull-request CI, security workflow, Ubuntu 24.04 package/lifecycle gate, Rust 1.92 MSRV check, and Ubuntu 26.04 preview job must be reviewed. The tagged release workflow then performs the real root-level Debian upgrade/install/remove smoke before publishing the prerelease.
+
+## Published public Beta: 0.7.0-beta.1
+
+LinuxCare `0.7.0-beta.1` remains published as a GitHub **Pre-release** at:
 
 https://github.com/MilMit/LinuxCare/releases/tag/v0.7.0-beta.1
 
 The release contains the verified Debian package, binary archive, deterministic source archive, SPDX 2.3 SBOM, release manifest, and SHA-256 checksums.
 
-## Verified
+## Verified beta.1 baseline
 
 The development-host Beta gate completed successfully and covered:
 
@@ -27,19 +43,6 @@ The development-host Beta gate completed successfully and covered:
 - Deterministic release-asset generation, SHA-256 checksums, release manifest, and SPDX SBOM generation.
 
 The real Debian smoke installed `linuxcare 0.7.0-beta.1`, upgraded the staged previous version, resolved its runtime dependencies, and removed LinuxCare cleanly.
-
-## Release engineering status
-
-The published Beta release uses tag `v0.7.0-beta.1` and is marked as a GitHub Pre-release rather than a stable release.
-
-The release pack includes:
-
-- `linuxcare_0.7.0-beta.1_amd64.deb`
-- `linuxcare-0.7.0-beta.1-x86_64-linux-gnu.tar.gz`
-- `linuxcare-0.7.0-beta.1-source.tar.gz`
-- `SBOM.spdx.json`
-- `SHA256SUMS.txt`
-- `RELEASE-MANIFEST.json`
 
 ## Screenshots / store media
 

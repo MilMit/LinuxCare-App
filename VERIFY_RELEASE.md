@@ -14,23 +14,21 @@ Every downloaded artifact should report `OK`.
 
 ## 2. Verify GitHub build provenance
 
-For a Debian package or binary archive built by the GitHub release workflow:
+For the Debian package or binary archive built by the GitHub release workflow:
 
 ```bash
-gh attestation verify linuxcare_0.7.0-beta.1_amd64.deb -R OWNER/REPOSITORY
+gh attestation verify linuxcare_0.7.0-beta.2_amd64.deb -R MilMit/LinuxCare
 ```
-
-Replace `OWNER/REPOSITORY` with the final public LinuxCare repository.
 
 ## 3. Verify the SPDX SBOM attestation
 
 ```bash
-gh attestation verify linuxcare_0.7.0-beta.1_amd64.deb \
-  -R OWNER/REPOSITORY \
+gh attestation verify linuxcare_0.7.0-beta.2_amd64.deb \
+  -R MilMit/LinuxCare \
   --predicate-type https://spdx.dev/Document/v2.3
 ```
 
-The repository identity must match the repository that published the release. Do not copy an OWNER/REPOSITORY value from an untrusted third-party download page.
+The repository identity must match the repository that published the release. Do not copy a repository value from an untrusted third-party download page.
 
 ## 4. Inspect the local release manifest
 

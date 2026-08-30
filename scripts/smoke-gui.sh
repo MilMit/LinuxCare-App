@@ -17,8 +17,26 @@ for cmd in xvfb-run setsid; do
 done
 
 TMP="$(mktemp -d)"
+pid=""
 cleanup() {
-  rm -rf "$TMP"
+  # LinuxCare can start bounded diagnostic subprocesses during startup (for
+  # example podman/systemd probes). The application may exit before one of
+  # those descendants has finished, so always reap the isolated process group
+  # before removing its temporary HOME.
+  if [[ -n "${pid:-}" ]]; then
+    kill -TERM -- "-$pid" 2>/dev/null || true
+    sleep 0.1
+    kill -KILL -- "-$pid" 2>/dev/null || true
+    wait "$pid" 2>/dev/null || true
+  fi
+
+  # Temporary rootless-container storage can contain overlay work directories
+  # that are not immediately removable on every runner. Cleanup is best-effort
+  # and must not turn an otherwise successful GUI startup assertion into a
+  # false-negative CI result.
+  if ! rm -rf "$TMP" 2>/dev/null; then
+    echo "GUI smoke: warning: temporary test directory could not be fully removed: $TMP" >&2
+  fi
 }
 trap cleanup EXIT
 mkdir -p "$TMP/home/.config" "$TMP/home/.local/state"
@@ -81,5 +99,11 @@ if grep -Eiq '(^|[^a-z])(panic|segmentation fault|gtk-critical|glib-critical|lib
   cat "$TMP/gui.err" >&2
   exit 1
 fi
+
+# Reap any diagnostic descendants that outlived the main application before
+# the EXIT trap attempts to remove the isolated HOME.
+kill -TERM -- "-$pid" 2>/dev/null || true
+sleep 0.1
+kill -KILL -- "-$pid" 2>/dev/null || true
 
 echo "LinuxCare GUI startup smoke passed at a 1024x600 virtual display."

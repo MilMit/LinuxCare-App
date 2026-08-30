@@ -1,6 +1,6 @@
 name: linuxcare
 base: core24
-version: '0.7.0-beta.1'
+version: '0.7.0-beta.2'
 summary: Safe, professional Linux maintenance and storage suite
 description: |
   LinuxCare is a modern GTK4/Libadwaita application for Ubuntu and GNOME desktops

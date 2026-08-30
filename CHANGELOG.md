@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.7.0-beta.2 — Debian Reliability Beta
+
+- Fixed Debian package policy failures exposed by Lintian in CI.
+- Replaced obsolete `policykit-1` dependency metadata with `polkitd` and added the direct `libc6` runtime dependency.
+- Enabled release-symbol stripping for LinuxCare binaries.
+- Added Debian copyright metadata and generated compressed `changelog.Debian.gz` package metadata.
+- Added manual pages for `linuxcare` and `linuxcare-maintenance`.
+- Wrapped long Debian control-description lines to satisfy package policy checks.
+- Reworked package helper shutdown to use `deb-systemd-invoke` and added systemd `Documentation=` metadata.
+- Hardened `validate-package.sh` so the Debian-policy regressions that affected beta.1 fail locally and in CI before publication.
+- Preserved the staging-permission hardening that explicitly clears inherited setgid bits and verifies `DEBIAN/` is mode `0755` immediately before `dpkg-deb`.
+- Synchronized Cargo, Cargo.lock, Snap, AppStream, and release-note metadata to `0.7.0-beta.2`.
+
+### Release focus
+
+- No new large feature work; this Beta remains under feature freeze.
+- Primary goal is package reliability, upgrade/remove safety, reproducible artifacts, and compatibility verification.
+
 ## 0.7.0-beta.1 — Beta Preparation Candidate
 
 - Added a one-command Beta gate covering verification, GUI startup, Debian build/validation and staged lifecycle tests.

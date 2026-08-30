@@ -43,11 +43,12 @@ Do not call LinuxCare stable merely because it compiles. Stable requires the des
 
 ## Beta candidate gate
 
-Before publishing `v0.7.0-beta.1` or any later Beta:
+Before publishing `v0.7.0-beta.2` or any later Beta:
 
 - [ ] `cargo fmt` leaves no diff
 - [ ] `./scripts/beta-gate.sh` passes on Ubuntu 24.04
 - [ ] real `sudo ./scripts/smoke-deb-install.sh` passes on an ephemeral Ubuntu host
+- [ ] Debian package validation/Lintian passes with no error-level findings
 - [ ] Ubuntu 26.04 preview compatibility job has been reviewed even while non-blocking
 - [ ] keyboard navigation and visible focus have been manually checked at 1024×600
 - [ ] GNOME reduced-motion/animations-disabled behavior has been manually checked
@@ -56,13 +57,12 @@ Before publishing `v0.7.0-beta.1` or any later Beta:
 - [ ] user config/state survives package removal; stale package-owned extension files do not survive upgrade
 - [ ] repository URL, screenshots and distribution license terms are real/final before public store submission
 
-
-## Beta release pack (0.7.0-beta.1)
+## Beta release pack (0.7.0-beta.2)
 
 - [ ] `./scripts/prepare-beta-release.sh --real-install-smoke` passes on a disposable Ubuntu release host/VM.
 - [ ] `target/release-pack/` contains `.deb`, binary tarball, deterministic source tarball, `SBOM.spdx.json`, `RELEASE-MANIFEST.json`, `SHA256SUMS.txt`, release notes, and build info.
-- [ ] Real AppStream screenshots are captured from the verified Beta UI, structurally validated, and manually privacy-reviewed.
-- [ ] Public repository / bug tracker URLs are final before re-adding AppStream `vcs-browser` or `bugtracker` URLs.
+- [ ] `linuxcare_0.7.0-beta.2_amd64.deb` passes `scripts/validate-package.sh` and the real install/upgrade/remove smoke.
+- [ ] Real AppStream screenshots are captured from the verified Beta UI, structurally validated, and manually privacy-reviewed before any store-facing submission.
 - [ ] Distribution/license policy is explicitly confirmed; do not imply an open-source license if none was chosen.
-- [ ] GitHub Release is marked prerelease and uses `RELEASE_NOTES_0.7.0-beta.1.md` as its release body.
+- [ ] GitHub Release is marked prerelease and uses `RELEASE_NOTES.md` / `RELEASE_NOTES_0.7.0-beta.2.md` as the release body/archive.
 - [ ] GitHub provenance and SPDX SBOM attestations are generated for binary artifacts.
