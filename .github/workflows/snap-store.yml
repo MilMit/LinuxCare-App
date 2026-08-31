@@ -22,7 +22,7 @@ env:
 
 jobs:
   snap:
-    name: Build, smoke-test & optionally publish Snap
+    name: Build, smoke-test & optionally publish strict Snap
     runs-on: ubuntu-24.04
 
     steps:
@@ -36,83 +36,56 @@ jobs:
       - name: Install Snap smoke dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends xvfb dbus-x11 libglib2.0-bin
+          sudo apt-get install -y --no-install-recommends xvfb dbus-x11
 
-      - name: Install locally as classic Snap
-        run: sudo snap install --dangerous --classic "${{ steps.snapcraft.outputs.snap }}"
+      - name: Install locally as strict Snap
+        run: sudo snap install --dangerous "${{ steps.snapcraft.outputs.snap }}"
 
-      - name: Connect local Polkit interface for smoke test
-        run: sudo snap connect linuxcare:polkit
-
-      - name: Verify Polkit policy installation
+      - name: Verify strict Store architecture
         run: |
+          snap info linuxcare
           snap connections linuxcare
-          grep -Rsl 'net.milmit.LinuxCare.clean-apt-cache' /usr/share/polkit-1/actions/ | grep '/snap.linuxcare.'
+          snap info linuxcare | grep -Eq '^confinement:[[:space:]]+strict$'
 
-      - name: Verify helper is D-Bus activated, not boot-started
+          # The Store edition must not ship the classic-only root helper,
+          # Polkit plug/policy, or system D-Bus service slot.
+          ! snap connections linuxcare | grep -Eq '(^|[[:space:]])polkit([[:space:]]|$)'
+          ! snap connections linuxcare | grep -F 'linuxcare-helper-dbus'
+          ! snap services linuxcare | grep -F 'linuxcare-helper'
+
+      - name: Connect observation interfaces for smoke test
         run: |
-          service='snap.linuxcare.linuxcare-helper.service'
+          # These connections exercise LinuxCare's read-only diagnostics on the
+          # clean runner. Store auto-connection can be requested separately;
+          # the application must still start gracefully when any are absent.
+          for plug in \
+            system-observe \
+            hardware-observe \
+            network-observe \
+            network-setup-observe \
+            network-manager-observe \
+            log-observe \
+            removable-media \
+            dot-linuxcare-cleanup-data
+          do
+            sudo snap connect "linuxcare:${plug}" || true
+          done
+          snap connections linuxcare
 
-          if systemctl is-active --quiet "$service"; then
-            echo 'linuxcare-helper unexpectedly started before a D-Bus request' >&2
-            sudo systemctl status "$service" --no-pager || true
-            exit 1
-          fi
-
-          set +e
-          reply="$(timeout 15s busctl call \
-            net.milmit.LinuxCare.Helper \
-            /net/milmit/LinuxCare/Helper \
-            net.milmit.LinuxCare.Helper1 \
-            GetVersion 2>&1)"
-          rc=$?
-          set -e
-          echo "$reply"
-
-          if [ "$rc" -ne 0 ]; then
-            echo "D-Bus GetVersion failed with exit code $rc" >&2
-            echo '--- snap services ---'
-            snap services linuxcare || true
-            echo '--- generated systemd unit ---'
-            sudo systemctl cat "$service" --no-pager || true
-            echo '--- systemd status ---'
-            sudo systemctl status "$service" --no-pager || true
-            echo '--- helper journal ---'
-            sudo journalctl -u "$service" --no-pager -n 200 || true
-            echo '--- snap logs ---'
-            sudo snap logs linuxcare.linuxcare-helper -n=200 || true
-            echo '--- D-Bus name state ---'
-            busctl --system list | grep -F 'net.milmit.LinuxCare.Helper' || true
-            exit "$rc"
-          fi
-
-          grep -F '0.7.0-beta.2' <<<"$reply"
-          systemctl is-active --quiet "$service"
-
-      - name: Verify bundled GSettings schemas
+      - name: Verify GNOME runtime and GSettings
         run: |
           snap run --shell linuxcare -c '
             set -eu
-            schema_dir="$GSETTINGS_SCHEMA_DIR"
-            echo "GSETTINGS_SCHEMA_DIR=$schema_dir"
-            ls -lah "$schema_dir"
-            test -s "$schema_dir/gschemas.compiled"
-            test -f "$schema_dir/org.gnome.desktop.interface.gschema.xml"
-            test -f "$schema_dir/org.gnome.desktop.a11y.interface.gschema.xml"
-
-            # Parse only the schema source bundled in the snap so the clean
-            # runner cannot accidentally satisfy this check from host data.
-            schema_list="$(mktemp)"
-            XDG_DATA_HOME="$(mktemp -d)" \
-            XDG_DATA_DIRS="$SNAP/usr/share" \
-            GSETTINGS_SCHEMA_DIR="$schema_dir" \
-              gsettings list-schemas >"$schema_list"
-            grep -Fx 'org.gnome.desktop.interface' "$schema_list"
-            grep -Fx 'org.gnome.desktop.a11y.interface' "$schema_list"
-            grep -Fx 'org.gtk.gtk4.Settings.FileChooser' "$schema_list"
+            test "$LINUXCARE_STORE_EDITION" = "1"
+            echo "SNAP_DESKTOP_RUNTIME=${SNAP_DESKTOP_RUNTIME:-}"
+            test -d "$SNAP_DESKTOP_RUNTIME"
+            test -s "$SNAP_DESKTOP_RUNTIME/usr/share/glib-2.0/schemas/gschemas.compiled"
+            gsettings list-schemas | grep -Fx "org.gnome.desktop.interface"
+            gsettings list-schemas | grep -Fx "org.gnome.desktop.a11y.interface"
+            gsettings list-schemas | grep -Fx "org.gtk.gtk4.Settings.FileChooser"
           '
 
-      - name: GUI startup smoke from installed Snap
+      - name: GUI startup smoke from installed strict Snap
         run: |
           timeout 20s dbus-run-session -- \
             xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
