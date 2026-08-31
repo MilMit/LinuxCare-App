@@ -58,7 +58,6 @@ parts:
       - libgtk-4-dev
       - libadwaita-1-dev
       - libgraphene-1.0-dev
-      - libglib2.0-bin
       - pkg-config
     stage-packages:
       - libgtk-4-1
@@ -74,8 +73,21 @@ parts:
       install -Dm644 data/net.milmit.LinuxCare.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/net.milmit.LinuxCare.metainfo.xml
       install -Dm644 data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
       install -Dm644 data/polkit-1/actions/net.milmit.LinuxCare.policy $CRAFT_PART_INSTALL/meta/polkit/polkit.linuxcare.policy
-    override-stage: |
+
+  # Build the GSettings cache only after the main part has completed its normal
+  # prime step. Keeping this in a separate final part is intentional: generated
+  # files created in override-stage are not tracked into prime, while overriding
+  # linuxcare's own prime step would bypass Snapcraft's enable-patchelf handling
+  # for this classic snap.
+  gsettings-cache:
+    plugin: nil
+    after:
+      - linuxcare
+    build-packages:
+      - libglib2.0-bin
+    override-prime: |
       craftctl default
-      if [ -d "$CRAFT_STAGE/usr/share/glib-2.0/schemas" ]; then
-        glib-compile-schemas "$CRAFT_STAGE/usr/share/glib-2.0/schemas"
-      fi
+      schema_dir="$CRAFT_PRIME/usr/share/glib-2.0/schemas"
+      test -d "$schema_dir"
+      glib-compile-schemas "$schema_dir"
+      test -s "$schema_dir/gschemas.compiled"
