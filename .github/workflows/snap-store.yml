@@ -36,7 +36,7 @@ jobs:
       - name: Install Snap smoke dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends xvfb dbus-x11
+          sudo apt-get install -y --no-install-recommends xvfb dbus-x11 libglib2.0-bin
 
       - name: Install locally as classic Snap
         run: sudo snap install --dangerous --classic "${{ steps.snapcraft.outputs.snap }}"
@@ -93,11 +93,23 @@ jobs:
         run: |
           snap run --shell linuxcare -c '
             set -eu
-            echo "GSETTINGS_SCHEMA_DIR=$GSETTINGS_SCHEMA_DIR"
-            test -s "$GSETTINGS_SCHEMA_DIR/gschemas.compiled"
-            test -f "$GSETTINGS_SCHEMA_DIR/org.gnome.desktop.interface.gschema.xml"
-            test -f "$GSETTINGS_SCHEMA_DIR/org.gnome.desktop.a11y.gschema.xml"
-            ls -lh "$GSETTINGS_SCHEMA_DIR/gschemas.compiled"
+            schema_dir="$GSETTINGS_SCHEMA_DIR"
+            echo "GSETTINGS_SCHEMA_DIR=$schema_dir"
+            ls -lah "$schema_dir"
+            test -s "$schema_dir/gschemas.compiled"
+            test -f "$schema_dir/org.gnome.desktop.interface.gschema.xml"
+            test -f "$schema_dir/org.gnome.desktop.a11y.interface.gschema.xml"
+
+            # Parse only the schema source bundled in the snap so the clean
+            # runner cannot accidentally satisfy this check from host data.
+            schema_list="$(mktemp)"
+            XDG_DATA_HOME="$(mktemp -d)" \
+            XDG_DATA_DIRS="$SNAP/usr/share" \
+            GSETTINGS_SCHEMA_DIR="$schema_dir" \
+              gsettings list-schemas >"$schema_list"
+            grep -Fx 'org.gnome.desktop.interface' "$schema_list"
+            grep -Fx 'org.gnome.desktop.a11y.interface' "$schema_list"
+            grep -Fx 'org.gtk.gtk4.Settings.FileChooser' "$schema_list"
           '
 
       - name: GUI startup smoke from installed Snap
