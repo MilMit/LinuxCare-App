@@ -2,12 +2,18 @@ name: linuxcare
 base: core24
 version: '0.7.0-beta.2'
 title: LinuxCare
-summary: Safe, professional Linux maintenance and storage suite
+summary: Safe Linux maintenance, diagnostics and storage intelligence
 description: |
   LinuxCare is a modern GTK4/Libadwaita application for Ubuntu and GNOME desktops
   developed by MilMit (https://milmit.net).
-  It provides safe cleanup for APT package caches, Snap revisions, system journals,
-  storage analytics, live system vitals, network diagnostics, live socket ownership/eBPF readiness, container storage analysis, package diagnostics, battery health, hardware inventory, Safety Quarantine, maintenance timeline, GNOME integration, and security auditing.
+
+  The Snap Store edition uses strict confinement. It provides live system vitals,
+  storage and hardware diagnostics, network and process insight, battery health,
+  security auditing, and safety-first cleanup of explicitly declared user-owned
+  cache/trash locations. Host package-manager mutation, disabled-Snap removal,
+  system journal vacuuming, privileged SMART access and GNOME Shell extension
+  management remain available in the full Debian edition where LinuxCare can use
+  its narrow Polkit-authorized helper.
 
 website: https://milmit.net
 source-code: https://github.com/MilMit/LinuxCare
@@ -16,78 +22,68 @@ contact: mailto:info@milmit.net
 icon: data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
 
 grade: devel
-# LinuxCare performs host-level maintenance and therefore intentionally uses
-# classic confinement. Public Snap Store publication requires classic
-# confinement approval from the Store review team before release.
-confinement: classic
+confinement: strict
 
+# LinuxCare's cleaner needs the real user's hidden cache/trash locations. Keep
+# this declaration deliberately narrow: no arbitrary home access and no host
+# package-manager/system directories are exposed to the Store edition.
 plugs:
-  polkit:
-    interface: polkit
-    action-prefix: net.milmit.LinuxCare
-
-slots:
-  linuxcare-helper-dbus:
-    interface: dbus
-    bus: system
-    name: net.milmit.LinuxCare.Helper
+  dot-linuxcare-cleanup-data:
+    interface: personal-files
+    write:
+      - $HOME/.cache
+      - $HOME/.local/share/Trash
+      - $HOME/.cargo/registry/cache
+      - $HOME/.npm/_cacache
+      - $HOME/.local/share/coredump
+      - $HOME/.config/linuxcare
+      - $HOME/.local/state/linuxcare
+      - $HOME/.local/share/linuxcare
 
 apps:
   linuxcare:
     command: usr/bin/linuxcare
     desktop: usr/share/applications/net.milmit.LinuxCare.desktop
-    environment:
-      XDG_DATA_DIRS: $SNAP/usr/share:$XDG_DATA_DIRS
-      GSETTINGS_SCHEMA_DIR: $SNAP/usr/share/glib-2.0/schemas
-
-  linuxcare-helper:
-    command: usr/libexec/linuxcare-helper
-    daemon: dbus
-    activates-on:
-      - linuxcare-helper-dbus
+    common-id: net.milmit.LinuxCare
+    extensions:
+      - gnome
     plugs:
-      - polkit
+      - home
+      - removable-media
+      - network
+      - system-observe
+      - hardware-observe
+      - network-observe
+      - network-setup-observe
+      - network-manager-observe
+      - log-observe
+      - upower-observe
+      - dot-linuxcare-cleanup-data
+    environment:
+      # Explicit product-mode flag used to prevent the confined Store build from
+      # attempting host mutations that belong to the full Debian edition.
+      LINUXCARE_STORE_EDITION: '1'
+      # LinuxCare intentionally scans user-owned cleanup locations. snapd maps
+      # HOME to SNAP_USER_DATA under strict confinement, while SNAP_REAL_HOME is
+      # the actual desktop user's home. Access remains limited by the interfaces
+      # above, including personal-files for the declared hidden locations.
+      HOME: $SNAP_REAL_HOME
+      XDG_CONFIG_HOME: $SNAP_REAL_HOME/.config
+      XDG_STATE_HOME: $SNAP_REAL_HOME/.local/state
+      XDG_DATA_HOME: $SNAP_REAL_HOME/.local/share
 
 parts:
   linuxcare:
     plugin: rust
     source: .
-    build-attributes:
-      - enable-patchelf
     build-packages:
       - libgtk-4-dev
       - libadwaita-1-dev
       - libgraphene-1.0-dev
       - pkg-config
-    stage-packages:
-      - libgtk-4-1
-      - libadwaita-1-0
-      - libgraphene-1.0-0
-      - gsettings-desktop-schemas
     override-build: |
-      cargo build --release --workspace
+      cargo build --release --bin linuxcare
       install -Dm755 target/release/linuxcare $CRAFT_PART_INSTALL/usr/bin/linuxcare
-      install -Dm755 target/release/linuxcare-maintenance $CRAFT_PART_INSTALL/usr/bin/linuxcare-maintenance
-      install -Dm755 target/release/linuxcare-helper $CRAFT_PART_INSTALL/usr/libexec/linuxcare-helper
       install -Dm644 data/net.milmit.LinuxCare.desktop $CRAFT_PART_INSTALL/usr/share/applications/net.milmit.LinuxCare.desktop
       install -Dm644 data/net.milmit.LinuxCare.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/net.milmit.LinuxCare.metainfo.xml
       install -Dm644 data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
-      install -Dm644 data/polkit-1/actions/net.milmit.LinuxCare.policy $CRAFT_PART_INSTALL/meta/polkit/polkit.linuxcare.policy
-
-  # Build the GSettings cache only after the main part has completed its normal
-  # prime step. Keeping this in a separate final part is intentional: generated
-  # files created in override-stage are not tracked into prime, while overriding
-  # linuxcare's own prime step would bypass Snapcraft's enable-patchelf handling
-  # for this classic snap.
-  gsettings-cache:
-    plugin: nil
-    after:
-      - linuxcare
-    build-packages:
-      - libglib2.0-bin
-    override-prime: |
-      craftctl default
-      schema_dir="$CRAFT_PRIME/usr/share/glib-2.0/schemas"
-      test -d "$schema_dir"
-      glib-compile-schemas "$schema_dir"
-      test -s "$schema_dir/gschemas.compiled"
