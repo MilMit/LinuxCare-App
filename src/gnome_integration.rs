@@ -8,8 +8,7 @@ use std::{
 pub const EXTENSION_UUID: &str = "linuxcare-vitals@milmit.net";
 
 fn is_store_edition() -> bool {
-    std::env::var_os("LINUXCARE_STORE_EDITION").as_deref()
-        == Some(std::ffi::OsStr::new("1"))
+    std::env::var_os("LINUXCARE_STORE_EDITION").as_deref() == Some(std::ffi::OsStr::new("1"))
 }
 
 #[derive(Debug, Clone, Default)]
