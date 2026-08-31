@@ -9,8 +9,7 @@ pub struct FlatpakCliProvider;
 
 impl FlatpakProvider for FlatpakCliProvider {
     fn remove_unused_runtimes(&self, user_scope: bool) -> Result<u64, ProviderError> {
-        if std::env::var_os("LINUXCARE_STORE_EDITION").as_deref()
-            == Some(std::ffi::OsStr::new("1"))
+        if std::env::var_os("LINUXCARE_STORE_EDITION").as_deref() == Some(std::ffi::OsStr::new("1"))
         {
             return Err(ProviderError::Unavailable(
                 "Flatpak runtime removal is unavailable in the strictly confined Snap Store edition."
