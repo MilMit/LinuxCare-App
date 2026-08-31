@@ -43,16 +43,23 @@ jobs:
 
       - name: Verify strict Store architecture
         run: |
+          set -eu
           snap info linuxcare
           snap connections linuxcare
 
-          # Verify confinement from the environment snapd gives the running app.
-          # `snap info` for a locally installed dangerous snap does not reliably
-          # print a confinement field, so it is not a valid assertion source.
+          # Verify the confinement declared in the metadata snapd actually
+          # mounted. This is authoritative for the installed local snap;
+          # `snap info` may omit strict because it is the default confinement,
+          # and SNAP_CONFINEMENT is not guaranteed in `snap run --shell`.
+          metadata=/snap/linuxcare/current/meta/snap.yaml
+          test -s "$metadata"
+          echo '--- installed snap metadata ---'
+          grep -E '^(name|version|confinement):' "$metadata" || true
+          grep -Eq '^confinement:[[:space:]]+strict$' "$metadata"
+
+          # Product-mode gating and payload checks.
           snap run --shell linuxcare -c '
             set -eu
-            echo "SNAP_CONFINEMENT=${SNAP_CONFINEMENT:-}"
-            test "${SNAP_CONFINEMENT:-}" = "strict"
             test "$LINUXCARE_STORE_EDITION" = "1"
             test ! -e "$SNAP/usr/libexec/linuxcare-helper"
             test ! -e "$SNAP/meta/polkit/polkit.linuxcare.policy"
