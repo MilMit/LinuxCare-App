@@ -7,6 +7,11 @@ use std::{
 
 pub const EXTENSION_UUID: &str = "linuxcare-vitals@milmit.net";
 
+fn is_store_edition() -> bool {
+    std::env::var_os("LINUXCARE_STORE_EDITION").as_deref()
+        == Some(std::ffi::OsStr::new("1"))
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct GnomeIntegrationStatus {
     pub shell_version: Option<u32>,
@@ -24,6 +29,14 @@ struct ExtensionMetadata {
 }
 
 pub fn status(home: &Path) -> GnomeIntegrationStatus {
+    if is_store_edition() {
+        return GnomeIntegrationStatus {
+            detail: "GNOME Shell extension management is intentionally unavailable in the strictly confined Snap Store edition. Install the LinuxCare Debian edition to manage LinuxCare Vitals integration."
+                .to_string(),
+            ..Default::default()
+        };
+    }
+
     let shell_version = detect_shell_major();
     let locations = [
         home.join(".local/share/gnome-shell/extensions")
@@ -73,6 +86,13 @@ pub fn status(home: &Path) -> GnomeIntegrationStatus {
 }
 
 pub fn set_enabled(enabled: bool) -> Result<(), String> {
+    if is_store_edition() {
+        return Err(
+            "GNOME Shell extension management is unavailable in the strictly confined Snap Store edition."
+                .to_string(),
+        );
+    }
+
     let action = if enabled { "enable" } else { "disable" };
     let output = Command::new("gnome-extensions")
         .args([action, EXTENSION_UUID])
