@@ -60,20 +60,28 @@ apps:
       - upower-observe
       - dot-linuxcare-cleanup-data
     environment:
-      # Explicit product-mode flag used to prevent the confined Store build from
-      # attempting host mutations that belong to the full Debian edition.
       LINUXCARE_STORE_EDITION: '1'
-      # LinuxCare intentionally scans user-owned cleanup locations. snapd maps
-      # HOME to SNAP_USER_DATA under strict confinement, while SNAP_REAL_HOME is
-      # the actual desktop user's home. Access remains limited by the interfaces
-      # above, including personal-files for the declared hidden locations.
       HOME: $SNAP_REAL_HOME
       XDG_CONFIG_HOME: $SNAP_REAL_HOME/.config
       XDG_STATE_HOME: $SNAP_REAL_HOME/.local/state
       XDG_DATA_HOME: $SNAP_REAL_HOME/.local/share
 
 parts:
+  # Snapcraft's Rust plugin validates that rustup is available before entering
+  # the build lifecycle. The GNOME extension changes the build environment, so
+  # make the toolchain an explicit dependency rather than relying on a host
+  # rustup installation. rust-toolchain.toml still pins LinuxCare to Rust 1.93.
+  rust-deps:
+    plugin: nil
+    build-snaps:
+      - rustup/latest/stable
+    override-build: |
+      rustup toolchain install 1.93.0 --profile minimal
+      rustup default 1.93.0
+
   linuxcare:
+    after:
+      - rust-deps
     plugin: rust
     source: .
     build-packages:
