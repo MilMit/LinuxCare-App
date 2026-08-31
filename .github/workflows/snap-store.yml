@@ -45,13 +45,24 @@ jobs:
         run: |
           snap info linuxcare
           snap connections linuxcare
-          snap info linuxcare | grep -Eq '^confinement:[[:space:]]+strict$'
 
-          # The Store edition must not ship the classic-only root helper,
-          # Polkit plug/policy, or system D-Bus service slot.
+          # Verify confinement from the environment snapd gives the running app.
+          # `snap info` for a locally installed dangerous snap does not reliably
+          # print a confinement field, so it is not a valid assertion source.
+          snap run --shell linuxcare -c '
+            set -eu
+            echo "SNAP_CONFINEMENT=${SNAP_CONFINEMENT:-}"
+            test "${SNAP_CONFINEMENT:-}" = "strict"
+            test "$LINUXCARE_STORE_EDITION" = "1"
+            test ! -e "$SNAP/usr/libexec/linuxcare-helper"
+            test ! -e "$SNAP/meta/polkit/polkit.linuxcare.policy"
+          '
+
+          # The Store edition must expose neither the classic-only Polkit plug
+          # nor the system D-Bus helper slot/service.
           ! snap connections linuxcare | grep -Eq '(^|[[:space:]])polkit([[:space:]]|$)'
           ! snap connections linuxcare | grep -F 'linuxcare-helper-dbus'
-          ! snap services linuxcare | grep -F 'linuxcare-helper'
+          ! snap services linuxcare 2>/dev/null | grep -F 'linuxcare-helper'
 
       - name: Connect observation interfaces for smoke test
         run: |
