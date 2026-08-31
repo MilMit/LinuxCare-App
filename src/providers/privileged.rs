@@ -10,12 +10,24 @@ const PATH: &str = "/net/milmit/LinuxCare/Helper";
 const INTERFACE: &str = "net.milmit.LinuxCare.Helper1";
 const INTERACTIVE_TIMEOUT: Duration = Duration::from_secs(10 * 60);
 
+fn is_store_edition() -> bool {
+    std::env::var_os("LINUXCARE_STORE_EDITION").as_deref()
+        == Some(std::ffi::OsStr::new("1"))
+}
+
 pub struct PrivilegedClient {
     connection: Connection,
 }
 
 impl PrivilegedClient {
     pub fn connect() -> Result<Self, ProviderError> {
+        if is_store_edition() {
+            return Err(ProviderError::Unavailable(
+                "This host-level maintenance action is unavailable in the strictly confined Snap Store edition. Use the LinuxCare Debian edition for Polkit-authorized APT, Snap, journal and privileged storage maintenance."
+                    .into(),
+            ));
+        }
+
         let connection = Builder::system()
             .map_err(|e| ProviderError::Unavailable(e.to_string()))?
             .method_timeout(INTERACTIVE_TIMEOUT)
