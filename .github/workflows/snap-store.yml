@@ -103,10 +103,39 @@ jobs:
             gsettings list-schemas | grep -Fx "org.gtk.gtk4.Settings.FileChooser"
           '
 
+      - name: Prepare user systemd session for strict Snap smoke
+        run: |
+          set -eux
+          uid="$(id -u)"
+
+          # GitHub-hosted Linux jobs execute inside hosted-compute-agent.service
+          # rather than a normal login session. Strict snaps using desktop/GPU
+          # interfaces need snapd to create a per-app transient cgroup through
+          # the user's systemd manager. Start that real user manager instead of
+          # using dbus-run-session, whose bus has no systemd user instance.
+          sudo loginctl enable-linger "$USER"
+          sudo systemctl start "user-runtime-dir@${uid}.service"
+          sudo systemctl start "user@${uid}.service"
+
+          for _ in $(seq 1 40); do
+            if [ -S "/run/user/${uid}/bus" ]; then
+              break
+            fi
+            sleep 0.25
+          done
+
+          test -S "/run/user/${uid}/bus"
+          XDG_RUNTIME_DIR="/run/user/${uid}" \
+          DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${uid}/bus" \
+            systemctl --user status --no-pager
+
       - name: GUI startup smoke from installed strict Snap
         run: |
-          timeout 20s dbus-run-session -- \
-            xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
+          uid="$(id -u)"
+          export XDG_RUNTIME_DIR="/run/user/${uid}"
+          export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
+
+          timeout 20s xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
             env GDK_BACKEND=x11 GSETTINGS_BACKEND=memory \
                 G_DEBUG=fatal-criticals LINUXCARE_GUI_SMOKE=1 \
             snap run linuxcare
