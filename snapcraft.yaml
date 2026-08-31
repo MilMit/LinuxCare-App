@@ -73,8 +73,8 @@ parts:
       install -Dm644 data/net.milmit.LinuxCare.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/net.milmit.LinuxCare.metainfo.xml
       install -Dm644 data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
       install -Dm644 data/polkit-1/actions/net.milmit.LinuxCare.policy $CRAFT_PART_INSTALL/meta/polkit/polkit.linuxcare.policy
-    override-prime: |
+    override-stage: |
       craftctl default
-      if [ -d "$CRAFT_PRIME/usr/share/glib-2.0/schemas" ]; then
-        glib-compile-schemas "$CRAFT_PRIME/usr/share/glib-2.0/schemas"
+      if [ -d "$CRAFT_STAGE/usr/share/glib-2.0/schemas" ]; then
+        glib-compile-schemas "$CRAFT_STAGE/usr/share/glib-2.0/schemas"
       fi
