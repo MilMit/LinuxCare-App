@@ -9,12 +9,22 @@ cd "$ROOT_DIR"
   exit 1
 }
 
-for cmd in xvfb-run setsid; do
+for cmd in xvfb-run setsid dbus-run-session gsettings; do
   command -v "$cmd" >/dev/null 2>&1 || {
     echo "Missing GUI smoke dependency: $cmd" >&2
     exit 2
   }
 done
+
+# Libadwaita's startup settings backend requires a real GSettings schema source.
+# Minimal CI images do not necessarily install the desktop schemas alongside
+# libadwaita itself, so fail here with a precise dependency error rather than a
+# later g_settings_schema_source_lookup(source == NULL) critical.
+if ! gsettings list-schemas | grep -Fxq 'org.gnome.desktop.interface'; then
+  echo "Missing runtime GSettings schema: org.gnome.desktop.interface" >&2
+  echo "Install gsettings-desktop-schemas before running the GUI smoke test." >&2
+  exit 2
+fi
 
 TMP="$(mktemp -d)"
 pid=""
@@ -42,18 +52,21 @@ trap cleanup EXIT
 mkdir -p "$TMP/home/.config" "$TMP/home/.local/state"
 chmod 700 "$TMP/home" "$TMP/home/.config" "$TMP/home/.local" "$TMP/home/.local/state" 2>/dev/null || true
 
-echo "GUI smoke: starting isolated 1024x600 X11 session..."
+echo "GUI smoke: starting isolated 1024x600 X11 + D-Bus session..."
 
-# Run the entire Xvfb + application tree in its own process group. This avoids
-# wrapper hangs: on timeout we terminate the complete group, not just one child.
+# Run a private session bus as well as Xvfb. A libadwaita desktop application is
+# expected to run in a user session, and this keeps the smoke test independent
+# of whatever session services happen to exist on a hosted runner.
 set +e
 setsid env \
   HOME="$TMP/home" \
   XDG_CONFIG_HOME="$TMP/home/.config" \
   XDG_STATE_HOME="$TMP/home/.local/state" \
   GDK_BACKEND=x11 \
+  GSETTINGS_BACKEND=memory \
   G_DEBUG=fatal-criticals \
   LINUXCARE_GUI_SMOKE=1 \
+  dbus-run-session -- \
   xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
   ./target/debug/linuxcare \
   >"$TMP/gui.out" 2>"$TMP/gui.err" &
@@ -101,7 +114,7 @@ if grep -Eiq '(^|[^a-z])(panic|segmentation fault|gtk-critical|glib-critical|lib
 fi
 
 # Reap any diagnostic descendants that outlived the main application before
-# the EXIT trap attempts to remove the isolated HOME.
+# the EXIT trap attempts to remove its temporary HOME.
 kill -TERM -- "-$pid" 2>/dev/null || true
 sleep 0.1
 kill -KILL -- "-$pid" 2>/dev/null || true
