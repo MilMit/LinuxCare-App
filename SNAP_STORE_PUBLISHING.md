@@ -1,50 +1,67 @@
 # LinuxCare on Ubuntu App Center / Snap Store
 
-LinuxCare is distributed to Ubuntu App Center through the public Snap Store.
+LinuxCare is distributed through the public Snap Store and Ubuntu App Center.
 
-## Channel policy
+## Store edition
 
-- Development and beta tags (`v*-alpha*`, `v*-beta*`, `v*-rc*`) publish to the Snap Store `beta` channel.
-- Stable tags publish to the `stable` channel once `snapcraft.yaml` uses `grade: stable`.
-- Pull requests build, locally install, connect the local Polkit interface, validate D-Bus activation, and GUI-smoke-test the snap without publishing it.
+The Snap Store edition uses:
 
-## Security model in the Snap
+- Ubuntu core24
+- GNOME extension
+- strict confinement
+- LINUXCARE_STORE_EDITION=1
 
-The Snap keeps LinuxCare's existing privilege boundary:
+The Store edition deliberately excludes privileged host mutations available in
+the full Debian edition, including:
 
-- the GTK/Libadwaita GUI runs as the desktop user;
-- the privileged helper is a system D-Bus service using the existing `net.milmit.LinuxCare.Helper` name;
-- the helper is D-Bus activated rather than started as a permanent boot service;
-- the official Snap `polkit` interface installs LinuxCare's existing action policy and the helper continues to authorize each sensitive operation through Polkit;
-- no generic privileged shell or arbitrary privileged command API is exposed.
+- APT mutation and autoremove
+- disabled Snap revision removal
+- system journal vacuuming
+- privileged SMART/NVMe operations
+- Flatpak runtime mutation
+- GNOME Shell extension management
+- LinuxCare root D-Bus helper
+- Polkit policy
 
-## First-time publisher setup
+## personal-files review
 
-LinuxCare intentionally uses `confinement: classic` because its core purpose is host-level maintenance and diagnostics. Public distribution therefore requires Store review/approval for:
+LinuxCare requests the `dot-linuxcare-cleanup-data` personal-files plug for
+explicitly declared user-owned cache, trash and LinuxCare state locations.
 
-1. classic confinement;
-2. installation of the `net.milmit.LinuxCare.Helper` system D-Bus name;
-3. auto-connection of the `polkit` plug with action prefix `net.milmit.LinuxCare` so App Center users do not need a manual post-install connection.
+Because `personal-files` requires Store review, the first public Store revision
+requires installation approval.
 
-The detailed technical rationale is in `SNAP_CLASSIC_REVIEW.md`.
+See `SNAP_STORE_REVIEW.md` for the complete interface rationale.
 
-## Publisher setup
+## Release channels
 
-1. Install Snapcraft and authenticate with the Canonical account that will own LinuxCare.
-2. Register the `linuxcare` snap name in the Snap Store.
-3. Build/upload the first revision and submit the Store review requests listed above.
-4. After approval, export narrowly-scoped Store credentials for CI:
+LinuxCare 0.7.0-beta.2 currently uses:
 
-   ```sh
-   snapcraft export-login --snaps=linuxcare \
-     --acls package_access,package_push,package_update,package_release \
-     exported.txt
-   ```
+- `grade: devel`
+- `confinement: strict`
 
-5. Add the contents of `exported.txt` to the GitHub repository secret named `SNAPCRAFT_STORE_CREDENTIALS`.
+Pre-release versions are intended for the Snap Store `beta` channel.
 
-After that, tagged releases are built and published automatically by `.github/workflows/snap-store.yml`.
+The `stable` channel must only be used after LinuxCare reaches a stable release
+and `snapcraft.yaml` uses `grade: stable`.
 
-## App Center
+## CI validation
 
-Once the snap has passed Store review and a revision is released to a public channel, it becomes discoverable through the Snap Store ecosystem used by Ubuntu App Center. Beta releases remain on the `beta` channel until a stable LinuxCare release is promoted.
+The LinuxCare Snap Store workflow:
+
+1. builds the strict Snap on Ubuntu 24.04;
+2. installs it without `--classic`;
+3. verifies `confinement: strict`;
+4. verifies no root helper or Polkit policy is shipped;
+5. validates GNOME runtime and GSettings;
+6. tests diagnostic interfaces;
+7. performs a GTK/Libadwaita GUI startup smoke test;
+8. uploads the exact tested Snap artifact.
+
+## Project
+
+- Snap: `linuxcare`
+- Publisher: MilMit
+- Website: https://milmit.net
+- Source: https://github.com/MilMit/LinuxCare-App
+- Issues: https://github.com/MilMit/LinuxCare-App/issues

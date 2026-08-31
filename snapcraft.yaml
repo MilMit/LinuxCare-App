@@ -16,8 +16,8 @@ description: |
   its narrow Polkit-authorized helper.
 
 website: https://milmit.net
-source-code: https://github.com/MilMit/LinuxCare
-issues: https://github.com/MilMit/LinuxCare/issues
+source-code: https://github.com/MilMit/LinuxCare-App
+issues: https://github.com/MilMit/LinuxCare-App/issues
 contact: mailto:info@milmit.net
 icon: data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
 

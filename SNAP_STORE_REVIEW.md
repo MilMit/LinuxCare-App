@@ -98,5 +98,5 @@ The `LinuxCare Snap Store` workflow:
 - Snap: `linuxcare`
 - Publisher: MilMit
 - Website: https://milmit.net
-- Source: https://github.com/MilMit/LinuxCare
-- Issues: https://github.com/MilMit/LinuxCare/issues
+- Source: https://github.com/MilMit/LinuxCare-App
+- Issues: https://github.com/MilMit/LinuxCare-App/issues
