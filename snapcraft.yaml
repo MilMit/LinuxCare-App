@@ -67,29 +67,30 @@ apps:
       XDG_DATA_HOME: $SNAP_REAL_HOME/.local/share
 
 parts:
-  # Snapcraft's Rust plugin validates that rustup is available before entering
-  # the build lifecycle. The GNOME extension changes the build environment, so
-  # make the toolchain an explicit dependency rather than relying on a host
-  # rustup installation. rust-toolchain.toml still pins LinuxCare to Rust 1.93.
-  rust-deps:
-    plugin: nil
-    build-snaps:
-      - rustup/latest/stable
-    override-build: |
-      rustup toolchain install 1.93.0 --profile minimal
-      rustup default 1.93.0
-
   linuxcare:
-    after:
-      - rust-deps
     plugin: rust
     source: .
+    rust-channel: '1.93.0'
+    build-snaps:
+      - rustup/latest/stable
+    # The GNOME extension prepends its SDK libc to LD_LIBRARY_PATH for every
+    # part. rustup/rustc are host build tools and must use the build host libc;
+    # otherwise rustup can load the SDK's libc and fail on GLIBC_PRIVATE.
+    # Snapcraft explicitly allows extension-provided build variables to be
+    # overridden per part. GTK headers/libs are supplied by build-packages, so
+    # clearing this runtime loader variable does not remove compile-time deps.
+    build-environment:
+      - LD_LIBRARY_PATH: ''
     build-packages:
       - libgtk-4-dev
       - libadwaita-1-dev
       - libgraphene-1.0-dev
       - pkg-config
     override-build: |
+      set -eux
+      rustup --version
+      rustc --version
+      cargo --version
       cargo build --release --bin linuxcare
       install -Dm755 target/release/linuxcare $CRAFT_PART_INSTALL/usr/bin/linuxcare
       install -Dm644 data/net.milmit.LinuxCare.desktop $CRAFT_PART_INSTALL/usr/share/applications/net.milmit.LinuxCare.desktop
