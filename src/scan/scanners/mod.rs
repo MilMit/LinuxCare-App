@@ -12,8 +12,7 @@ mod user_cache;
 use super::Scanner;
 
 fn is_store_edition() -> bool {
-    std::env::var_os("LINUXCARE_STORE_EDITION").as_deref()
-        == Some(std::ffi::OsStr::new("1"))
+    std::env::var_os("LINUXCARE_STORE_EDITION").as_deref() == Some(std::ffi::OsStr::new("1"))
 }
 
 pub fn default_scanners() -> Vec<Box<dyn Scanner>> {
