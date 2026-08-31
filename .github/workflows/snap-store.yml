@@ -89,10 +89,23 @@ jobs:
           grep -F '0.7.0-beta.2' <<<"$reply"
           systemctl is-active --quiet "$service"
 
+      - name: Verify bundled GSettings schemas
+        run: |
+          snap run --shell linuxcare -c '
+            set -eu
+            echo "GSETTINGS_SCHEMA_DIR=$GSETTINGS_SCHEMA_DIR"
+            test -s "$GSETTINGS_SCHEMA_DIR/gschemas.compiled"
+            test -f "$GSETTINGS_SCHEMA_DIR/org.gnome.desktop.interface.gschema.xml"
+            test -f "$GSETTINGS_SCHEMA_DIR/org.gnome.desktop.a11y.gschema.xml"
+            ls -lh "$GSETTINGS_SCHEMA_DIR/gschemas.compiled"
+          '
+
       - name: GUI startup smoke from installed Snap
         run: |
-          timeout 20s xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
-            env GDK_BACKEND=x11 G_DEBUG=fatal-criticals LINUXCARE_GUI_SMOKE=1 \
+          timeout 20s dbus-run-session -- \
+            xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
+            env GDK_BACKEND=x11 GSETTINGS_BACKEND=memory \
+                G_DEBUG=fatal-criticals LINUXCARE_GUI_SMOKE=1 \
             snap run linuxcare
 
       - name: Upload Snap build artifact
