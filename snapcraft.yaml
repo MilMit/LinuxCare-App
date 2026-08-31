@@ -38,6 +38,7 @@ apps:
     desktop: usr/share/applications/net.milmit.LinuxCare.desktop
     environment:
       XDG_DATA_DIRS: $SNAP/usr/share:$XDG_DATA_DIRS
+      GSETTINGS_SCHEMA_DIR: $SNAP/usr/share/glib-2.0/schemas
 
   linuxcare-helper:
     command: usr/libexec/linuxcare-helper
@@ -57,6 +58,7 @@ parts:
       - libgtk-4-dev
       - libadwaita-1-dev
       - libgraphene-1.0-dev
+      - libglib2.0-bin
       - pkg-config
     stage-packages:
       - libgtk-4-1
@@ -71,3 +73,8 @@ parts:
       install -Dm644 data/net.milmit.LinuxCare.metainfo.xml $CRAFT_PART_INSTALL/usr/share/metainfo/net.milmit.LinuxCare.metainfo.xml
       install -Dm644 data/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg $CRAFT_PART_INSTALL/usr/share/icons/hicolor/scalable/apps/net.milmit.LinuxCare.svg
       install -Dm644 data/polkit-1/actions/net.milmit.LinuxCare.policy $CRAFT_PART_INSTALL/meta/polkit/polkit.linuxcare.policy
+    override-prime: |
+      craftctl default
+      if [ -d "$CRAFT_PRIME/usr/share/glib-2.0/schemas" ]; then
+        glib-compile-schemas "$CRAFT_PRIME/usr/share/glib-2.0/schemas"
+      fi
