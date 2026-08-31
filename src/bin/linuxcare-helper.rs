@@ -6,9 +6,8 @@ use std::{
 };
 use walkdir::WalkDir;
 use zbus::{
-    fdo, interface,
+    connection, fdo, interface,
     message::{Flags, Header},
-    Connection,
 };
 
 const BUS_NAME: &str = "net.milmit.LinuxCare.Helper";
@@ -223,17 +222,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("linuxcare-helper must run as root via system D-Bus activation".into());
     }
 
-    let connection = Connection::system().await?;
-    connection.request_name(BUS_NAME).await?;
-    connection
-        .object_server()
-        .at(
+    // Register the object before claiming the well-known name. This avoids a
+    // systemd D-Bus activation race where a queued method call can be delivered
+    // as soon as the name is acquired but before ObjectServer::at() completes.
+    let _connection = connection::Builder::system()?
+        .name(BUS_NAME)?
+        .serve_at(
             OBJECT_PATH,
             Helper {
                 mutation_lock: Mutex::new(()),
             },
-        )
+        )?
+        .build()
         .await?;
+
     std::future::pending::<()>().await;
     Ok(())
 }

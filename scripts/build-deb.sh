@@ -79,7 +79,7 @@ Version: ${VERSION}
 Section: utils
 Priority: optional
 Architecture: ${ARCH}
-Depends: libc6, libgtk-4-1, libadwaita-1-0, dbus, polkitd, systemd
+Depends: libc6, libgtk-4-1, libadwaita-1-0, gsettings-desktop-schemas, dbus, polkitd, systemd
 Recommends: smartmontools, libnotify-bin, iproute2
 Suggests: gnome-shell, bpftool
 Maintainer: MilMit <info@milmit.net>

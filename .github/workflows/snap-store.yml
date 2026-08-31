@@ -1,0 +1,162 @@
+name: LinuxCare Snap Store
+
+on:
+  pull_request:
+    paths:
+      - 'snapcraft.yaml'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'src/**'
+      - 'data/**'
+      - '.github/workflows/snap-store.yml'
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+
+jobs:
+  snap:
+    name: Build, smoke-test & optionally publish strict Snap
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Build Snap
+        id: snapcraft
+        uses: snapcore/action-build@v1
+
+      - name: Install Snap smoke dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb dbus-x11
+
+      - name: Install locally as strict Snap
+        run: sudo snap install --dangerous "${{ steps.snapcraft.outputs.snap }}"
+
+      - name: Verify strict Store architecture
+        run: |
+          set -eu
+          snap info linuxcare
+          snap connections linuxcare
+
+          # Verify the confinement declared in the metadata snapd actually
+          # mounted. This is authoritative for the installed local snap;
+          # `snap info` may omit strict because it is the default confinement,
+          # and SNAP_CONFINEMENT is not guaranteed in `snap run --shell`.
+          metadata=/snap/linuxcare/current/meta/snap.yaml
+          test -s "$metadata"
+          echo '--- installed snap metadata ---'
+          grep -E '^(name|version|confinement):' "$metadata" || true
+          grep -Eq '^confinement:[[:space:]]+strict$' "$metadata"
+
+          # Product-mode gating and payload checks.
+          snap run --shell linuxcare -c '
+            set -eu
+            test "$LINUXCARE_STORE_EDITION" = "1"
+            test ! -e "$SNAP/usr/libexec/linuxcare-helper"
+            test ! -e "$SNAP/meta/polkit/polkit.linuxcare.policy"
+          '
+
+          # The Store edition must expose neither the classic-only Polkit plug
+          # nor the system D-Bus helper slot/service.
+          ! snap connections linuxcare | grep -Eq '(^|[[:space:]])polkit([[:space:]]|$)'
+          ! snap connections linuxcare | grep -F 'linuxcare-helper-dbus'
+          ! snap services linuxcare 2>/dev/null | grep -F 'linuxcare-helper'
+
+      - name: Connect observation interfaces for smoke test
+        run: |
+          # These connections exercise LinuxCare's read-only diagnostics on the
+          # clean runner. Store auto-connection can be requested separately;
+          # the application must still start gracefully when any are absent.
+          for plug in \
+            system-observe \
+            hardware-observe \
+            network-observe \
+            network-setup-observe \
+            network-manager-observe \
+            log-observe \
+            removable-media \
+            dot-linuxcare-cleanup-data
+          do
+            sudo snap connect "linuxcare:${plug}" || true
+          done
+          snap connections linuxcare
+
+      - name: Verify GNOME runtime and GSettings
+        run: |
+          snap run --shell linuxcare -c '
+            set -eu
+            test "$LINUXCARE_STORE_EDITION" = "1"
+            echo "SNAP_DESKTOP_RUNTIME=${SNAP_DESKTOP_RUNTIME:-}"
+            test -d "$SNAP_DESKTOP_RUNTIME"
+            test -s "$SNAP_DESKTOP_RUNTIME/usr/share/glib-2.0/schemas/gschemas.compiled"
+            gsettings list-schemas | grep -Fx "org.gnome.desktop.interface"
+            gsettings list-schemas | grep -Fx "org.gnome.desktop.a11y.interface"
+            gsettings list-schemas | grep -Fx "org.gtk.gtk4.Settings.FileChooser"
+          '
+
+      - name: Prepare user systemd session for strict Snap smoke
+        run: |
+          set -eux
+          uid="$(id -u)"
+
+          # GitHub-hosted Linux jobs execute inside hosted-compute-agent.service
+          # rather than a normal login session. Strict snaps using desktop/GPU
+          # interfaces need snapd to create a per-app transient cgroup through
+          # the user's systemd manager. Start that real user manager instead of
+          # using dbus-run-session, whose bus has no systemd user instance.
+          sudo loginctl enable-linger "$USER"
+          sudo systemctl start "user-runtime-dir@${uid}.service"
+          sudo systemctl start "user@${uid}.service"
+
+          for _ in $(seq 1 40); do
+            if [ -S "/run/user/${uid}/bus" ]; then
+              break
+            fi
+            sleep 0.25
+          done
+
+          test -S "/run/user/${uid}/bus"
+          XDG_RUNTIME_DIR="/run/user/${uid}" \
+          DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${uid}/bus" \
+            systemctl --user status --no-pager
+
+      - name: GUI startup smoke from installed strict Snap
+        run: |
+          uid="$(id -u)"
+          export XDG_RUNTIME_DIR="/run/user/${uid}"
+          export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
+
+          timeout 20s xvfb-run -a -s '-screen 0 1024x600x24 -nolisten tcp' \
+            env GDK_BACKEND=x11 GSETTINGS_BACKEND=memory \
+                G_DEBUG=fatal-criticals LINUXCARE_GUI_SMOKE=1 \
+            snap run linuxcare
+
+      - name: Upload Snap build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linuxcare-snap-${{ github.sha }}
+          path: ${{ steps.snapcraft.outputs.snap }}
+          if-no-files-found: error
+
+      - name: Publish prerelease to Snap Store beta channel
+        if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref_name, '-') && env.SNAPCRAFT_STORE_CREDENTIALS != ''
+        uses: snapcore/action-publish@v1
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: beta
+
+      - name: Publish stable release to Snap Store stable channel
+        if: startsWith(github.ref, 'refs/tags/v') && !contains(github.ref_name, '-') && env.SNAPCRAFT_STORE_CREDENTIALS != ''
+        uses: snapcore/action-publish@v1
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: stable
