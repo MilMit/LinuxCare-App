@@ -9,18 +9,18 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MilMit/LinuxCare/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/MilMit/LinuxCare/actions/workflows/ci.yml/badge.svg"></a>
-  <a href="https://github.com/MilMit/LinuxCare/actions/workflows/security.yml"><img alt="Security" src="https://github.com/MilMit/LinuxCare/actions/workflows/security.yml/badge.svg"></a>
-  <a href="https://github.com/MilMit/LinuxCare/releases"><img alt="Release" src="https://img.shields.io/github/v/release/MilMit/LinuxCare?include_prereleases&label=release"></a>
+  <a href="https://github.com/MilMit/LinuxCare-App/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/MilMit/LinuxCare-App/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/MilMit/LinuxCare-App/actions/workflows/security.yml"><img alt="Security" src="https://github.com/MilMit/LinuxCare-App/actions/workflows/security.yml/badge.svg"></a>
+  <a href="https://github.com/MilMit/LinuxCare-App/releases"><img alt="Release" src="https://img.shields.io/github/v/release/MilMit/LinuxCare?include_prereleases&label=release"></a>
   <img alt="Ubuntu / GNOME" src="https://img.shields.io/badge/platform-Ubuntu%20%2F%20GNOME-E95420?logo=ubuntu&logoColor=white">
   <img alt="Rust 1.93" src="https://img.shields.io/badge/Rust-1.93-000000?logo=rust&logoColor=white">
   <img alt="Status: Public Beta" src="https://img.shields.io/badge/status-public%20beta-blue">
 </p>
 
 <p align="center">
-  <a href="https://github.com/MilMit/LinuxCare/releases/download/v0.7.0-beta.1/linuxcare_0.7.0-beta.1_amd64.deb"><strong>⬇ Download .deb</strong></a>
+  <a href="https://github.com/MilMit/LinuxCare-App/releases/download/v0.7.0-beta.1/linuxcare_0.7.0-beta.1_amd64.deb"><strong>⬇ Download .deb</strong></a>
   &nbsp;•&nbsp;
-  <a href="https://github.com/MilMit/LinuxCare/releases/tag/v0.7.0-beta.1"><strong>All release assets</strong></a>
+  <a href="https://github.com/MilMit/LinuxCare-App/releases/tag/v0.7.0-beta.1"><strong>All release assets</strong></a>
   &nbsp;•&nbsp;
   <a href="RELEASE_NOTES.md"><strong>Release notes</strong></a>
 </p>
@@ -36,9 +36,9 @@
 
 **Recommended package for Ubuntu/GNOME:**
 
-[Download `linuxcare_0.7.0-beta.1_amd64.deb`](https://github.com/MilMit/LinuxCare/releases/download/v0.7.0-beta.1/linuxcare_0.7.0-beta.1_amd64.deb)
+[Download `linuxcare_0.7.0-beta.1_amd64.deb`](https://github.com/MilMit/LinuxCare-App/releases/download/v0.7.0-beta.1/linuxcare_0.7.0-beta.1_amd64.deb)
 
-All release artifacts, source archives, checksums, SBOM, and release metadata are available on the [v0.7.0-beta.1 release page](https://github.com/MilMit/LinuxCare/releases/tag/v0.7.0-beta.1).
+All release artifacts, source archives, checksums, SBOM, and release metadata are available on the [v0.7.0-beta.1 release page](https://github.com/MilMit/LinuxCare-App/releases/tag/v0.7.0-beta.1).
 
 ### Install
 
@@ -197,7 +197,7 @@ Real application screenshots are intentionally not fabricated. The repository cu
 
 ## Reporting bugs
 
-Use [GitHub Issues](https://github.com/MilMit/LinuxCare/issues) and include:
+Use [GitHub Issues](https://github.com/MilMit/LinuxCare-App/issues) and include:
 
 - LinuxCare version.
 - Ubuntu and GNOME versions.
