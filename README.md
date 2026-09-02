@@ -214,5 +214,5 @@ The repository currently does not declare an open-source license. Do not assume 
 ---
 
 <p align="center">
-  <strong>LinuxCare</strong> — maintain Linux with evidence, explicit boundaries, and reversible actions where reversal is real.
+  <strong>LinuxCare</strong> — maintain Linux with evidence, explicit boundaries, and reversible actions where reversal is real.<br>Created by <a href="https://github.com/miladdadgar">Milad Dadgar</a> and published by <a href="https://github.com/MilMit">MilMit</a>.
 </p>
