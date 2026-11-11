@@ -4,6 +4,8 @@
 
 <h1 align="center">LinuxCare</h1>
 
+<p align="center">An open-source project by <a href="https://github.com/MilMit">MilMit</a>.</p>
+
 <p align="center">
   Safety-first Linux maintenance, diagnostics, health intelligence, and GNOME integration — built natively with Rust, GTK4, and Libadwaita.
 </p>
