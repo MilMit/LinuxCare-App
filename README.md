@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/MilMit/LinuxCare-App/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/MilMit/LinuxCare-App/actions/workflows/ci.yml/badge.svg"></a>
   <a href="https://github.com/MilMit/LinuxCare-App/actions/workflows/security.yml"><img alt="Security" src="https://github.com/MilMit/LinuxCare-App/actions/workflows/security.yml/badge.svg"></a>
-  <a href="https://github.com/MilMit/LinuxCare-App/releases"><img alt="Release" src="https://img.shields.io/github/v/release/MilMit/LinuxCare?include_prereleases&label=release"></a>
+  <a href="https://github.com/MilMit/LinuxCare-App/releases"><img alt="Release" src="https://img.shields.io/github/v/release/MilMit/LinuxCare-App?include_prereleases&label=release"></a>
   <img alt="Ubuntu / GNOME" src="https://img.shields.io/badge/platform-Ubuntu%20%2F%20GNOME-E95420?logo=ubuntu&logoColor=white">
   <img alt="Rust 1.93" src="https://img.shields.io/badge/Rust-1.93-000000?logo=rust&logoColor=white">
   <img alt="Status: Public Beta" src="https://img.shields.io/badge/status-public%20beta-blue">
